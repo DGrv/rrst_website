@@ -17,7 +17,7 @@ async function fetchEvents({ server, user, year, month, country }) {
 
 
 function renderEventCards(events, container) {
-    container.innerHTML = ""; // clear previous content
+    container.innerHTML = "";
 
     events.forEach(event => {
         const card = document.createElement("div");
@@ -40,6 +40,27 @@ function renderEventCards(events, container) {
     });
 }
 
+
+function setupEventSearch(events) {
+    const searchInput = document.getElementById("eventSearchInput");
+    const container = document.getElementById("tEventCards");
+
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+
+        const filteredEvents = events.filter(event => {
+            return (
+                event[2].toLowerCase().includes(query) || // name
+                event[5].toLowerCase().includes(query) || // city
+                (event[10] && event[10].toLowerCase().includes(query)) // type
+            );
+        });
+
+        renderEventCards(filteredEvents, container);
+    });
+}
+
+
 async function loadMyEventCards(year, month) {
     const container = document.getElementById("tEventCards");
 
@@ -52,9 +73,11 @@ async function loadMyEventCards(year, month) {
         });
 
         renderEventCards(events, container);
+        setupEventSearch(events);
 
     } catch (err) {
         console.error(err);
         container.innerHTML = `<div class="Error">Failed to load events</div>`;
     }
 }
+
