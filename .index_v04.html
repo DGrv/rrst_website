@@ -1,0 +1,172 @@
+---
+permalink: /
+layout: events
+---
+
+
+<style>
+
+
+.EventCardsContainer {
+    display: grid;
+    /* grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); */
+    flex-direction: column; /* stack cards vertically */
+    gap: 16px;
+    padding: 10px;
+}
+
+/* If you want the card width to shrink on small screens: */
+@media (max-width: 600px) {
+    .EventCard {
+        padding: 12px;
+    }
+}
+
+
+.EventCardColumns {
+    display: flex;
+    gap: 25px; /* Abstand zwischen Spalten */
+}
+
+.EventCardLogo {
+    flex: 0 0 100px; /* feste Breite für Logo */
+}
+
+.EventCardLogo img.logo {
+    width: 100%;
+    height: 100%; /* volle Höhe der Karte */
+    object-fit: contain; /* Bild proportional skalieren */
+    border-radius: 8px;
+}
+
+.EventCardContent {
+    flex: 1; /* restlicher Platz für Inhalt */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+}
+
+
+
+
+.EventCard {
+    width: 100%; /* full width of container */
+    max-width: 1200px; /* optional, limits width on large screens */
+    margin: 0 auto; /* center the card */
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 0.8em;
+}
+
+.EventCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.EventCard img.icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 8px;
+}
+
+.EventCard img.flag {
+    width: 24px;
+    height: 16px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.EventCardHeader {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+
+    justify-content: space-between; /* distributes first, middle, last evenly */
+    gap: 10px; /* optional spacing between items */
+}
+
+.EventCardName {
+    font-weight: bold;
+}
+
+.EventCardCity {
+    margin-bottom: 4px;
+}
+
+.EventCardDate {
+    color: #bd1500;
+    font-size: 1em;
+    text-align: center;
+    flex: 1; /* makes the date expand and stay centered */
+}
+
+
+
+.EventSearchContainer {
+    width: 100%;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+#eventSearchInput {
+    width: 100%;
+    max-width: 1200px;
+    padding: 8px 12px;
+    font-size: 1em;
+    color: #000000;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+</style>
+
+
+
+
+
+
+
+
+
+<!-- From rr original
+<div class="EventTable" id="tEventTable">
+<div><div>&nbsp;</div><div>&nbsp;</div><div>City</div><div>Event</div><div>Date</div></div>
+</div>
+<link rel="stylesheet" type="text/css" href="https://my.raceresult.com/RREvents/style.css"> 
+<script type="text/javascript" src="https://my.raceresult.com/RREvents/RREvents.js"></script>
+<script type="text/javascript">
+  let options = { dateFormat: 'dd.mm.yyyy' };
+  let rre = new RREvents(document.getElementById("tEventTable"), null, 'en', options);
+  rre.server = "https://my.raceresult.com";
+  rre.user = 846;
+  //rre.year=2023;
+  //rre.group=1234;
+  //rre.eventlink="http://your.webseite.com/events/show?eventid=[eventid]";
+  //rre.openInNewWindow=false;
+  rre.loadEvents(function (resultSize) { return true; });
+</script> -->
+
+
+
+
+
+
+<div class="EventSearchContainer">
+    <input type="text" id="eventSearchInput" placeholder="Search events..." />
+</div>
+
+<div id="searchResultsContainer" style="display:none;"></div>
+<div id="allEventsContainer"></div>
+
+<script type="text/javascript" src='{{ "/assets/js/RRevents_rrst_v04.js" | relative_url}}'></script>
+
+<script type="text/javascript">
+loadAllEventCards(2022, 2025);
+</script>
