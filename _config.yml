@@ -29,7 +29,7 @@ name                     : &name "RRST" # &name is a YAML anchor which can be *r
 # description              : &description "A flexible Jekyll theme for your blog or site with a minimalist aesthetic."
 url                      : "https://dgrv.github.io"
 baseurl                  : "/rrst_website" # the subpath of your site, e.g. "/blog"
-repository               : "DGrv/rrst_website"
+# repository               : "/rrst_website"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : "/assets/images/logo/logo_rrst_small.jpg" # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
 masthead_title           : # overrides the website title displayed in the masthead, use " " for no title
