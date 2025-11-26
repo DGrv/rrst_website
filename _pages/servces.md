@@ -1,5 +1,5 @@
 ---
-permalink: /results/
+permalink: /services/
 layout: single
 sidebar:
   nav: navtools

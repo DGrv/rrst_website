@@ -24,16 +24,32 @@ function renderEventCards(events, container) {
         card.className = "EventCard";
 
         card.innerHTML = `
-            <div class="EventCardHeader">
-                ${event[6] ? `<img class="flag" src="https://my.raceresult.com/graphics/flags/${event[6]}.gif" alt="">` : ''}
-                <div class="EventCardDate">${event[3]}</div>
-                <img class="icon" src="https://my.raceresult.com/RREvents/eventtypes/${event[1]}.png" alt="">
+            <div class="EventCardColumns">
+                <!-- Linke Spalte: Logo -->
+                <div class="EventCardLogo">
+                    <img class="logo" src="https://my.raceresult.com/${event[0]}/logo" alt="" onerror="this.style.display='none';">
+                </div>
+
+                <!-- Rechte Spalte: alle anderen Infos -->
+                <div class="EventCardContent">
+                    <div class="EventCardHeader">
+                        ${event[6] ? `<img class="flag" src="https://my.raceresult.com/graphics/flags/${event[6]}.gif" alt="">` : ''}
+                        <div class="EventCardDate">${event[3]}</div>
+                        <img class="icon" src="https://my.raceresult.com/RREvents/eventtypes/${event[1]}.png" alt="">
+                    </div>
+                    <div class="EventCardName">${event[2]}</div>
+                    <div class="EventCardCity">${event[5]}</div>
+                </div>
             </div>
-            <div class="EventCardCity">
-                ${event[5]} 
             </div>
-            <div class="EventCardName">${event[2]}</div>
         `;
+
+        // Make card clickable
+        card.style.cursor = "pointer";
+        card.addEventListener("click", () => {
+            const url = `https://my.raceresult.com/${event[0]}`;
+            window.open(url, "_blank"); // open in new tab
+        });
 
         container.appendChild(card);
     });

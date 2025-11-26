@@ -2,8 +2,8 @@
 main:
   - title: "Veranstaltung"
     url: /
-  - title: "Ergebnisse"
-    url: /results/
+  - title: "Services"
+    url: /services/
   - title: "Über uns" 
     url: /team/
 
