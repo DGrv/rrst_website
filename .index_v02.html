@@ -75,19 +75,16 @@ layout: events
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+
+
 </style>
-
-
-
-
-
 
 <div class="EventSearchContainer">
     <input type="text" id="eventSearchInput" placeholder="Search events..." />
 </div>
 
-<!-- <div id="tEventCards" class="EventCardsContainer"></div> -->
-<div id="allEventsContainer"></div>
+
+<div id="tEventCards" class="EventCardsContainer"></div>
 
 
 <!-- <link rel="stylesheet" type="text/css" href="https://my.raceresult.com/RREvents/style.css"> -->
@@ -105,8 +102,8 @@ layout: events
 </script> -->
 
 
-<script type="text/javascript" src='{{ "/assets/js/RRevents_rrst_v03.js" | relative_url}}'></script>
+<script type="text/javascript" src='{{ "/assets/js/RRevents_rrst_v02.js" | relative_url}}'></script>
 
 <script type="text/javascript">
-  loadAllEventCards(2024, 2025);
+  loadMyEventCards(2025, 6);
 </script>

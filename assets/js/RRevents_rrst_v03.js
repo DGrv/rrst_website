@@ -61,25 +61,46 @@ function setupEventSearch(events) {
 }
 
 
-async function loadMyEventCards(year, month) {
-    const container = document.getElementById("tEventCards");
+async function loadAllEventCards(startYear, endYear) {
+    const container = document.getElementById("allEventsContainer");
+    container.innerHTML = ""; // clear previous content
 
-    try {
-        const events = await fetchEvents({
-            server: "https://my.raceresult.com",
-            user: 846,
-            year,
-            month
-        });
+    // Start from the latest year/month (descending order)
+    for (let year = endYear; year >= startYear; year--) {
+        for (let month = 12; month >= 1; month--) {
+            // Optional: skip future months
+            const today = new Date();
+            if (year === today.getFullYear() && month > today.getMonth() + 1) continue;
 
-        renderEventCards(events, container);
-        setupEventSearch(events);
+            // Create month title
+            const monthTitle = document.createElement("h2");
+            monthTitle.textContent = formatMonthYear(month, year);
+            monthTitle.style.marginTop = "32px";
+            container.appendChild(monthTitle);
 
-    } catch (err) {
-        console.error(err);
-        container.innerHTML = `<div class="Error">Failed to load events</div>`;
+            // Create a container for cards
+            const monthContainer = document.createElement("div");
+            monthContainer.className = "EventCardsContainer";
+            container.appendChild(monthContainer);
+
+            // Fetch events for this year/month
+            try {
+                const events = await fetchEvents({
+                    server: "https://my.raceresult.com",
+                    user: 846,
+                    year,
+                    month
+                });
+
+                renderEventCards(events, monthContainer);
+            } catch (err) {
+                console.error(err);
+                monthContainer.innerHTML = `<div class="Error">Failed to load events</div>`;
+            }
+        }
     }
 }
+
 
 
 const monthNames = [
