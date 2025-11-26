@@ -6,26 +6,28 @@ search: false
 @charset "utf-8";
 
 
+/*add dorian */
+/*add dorian */
+/*add dorian */
+/*add dorian */
+
 // Skins
 /* Colors */
 // to place before the @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 // and without !default tag, $primary-color: #00adb5 !default;
 $primary-color: #2c2c2c;
+$background-color: #e5e5e5;
 
- /*add dorian */
- /*add dorian */
- /*add dorian */
- /*add dorian */
 
 article img {
-   &.emoji {          
-      width: 20px;      
-      height: 20px;     
-    }                   
-    &.emojibig {        
-      width: 50px;      
-      height: 50px;     
-    }
+  &.emoji {
+    width: 20px;
+    height: 20px;
+  }
+  &.emojibig {
+    width: 50px;
+    height: 50px;
+  }
 }
 
 h2 {
@@ -33,80 +35,74 @@ h2 {
 }
 
 div.EventCardsContainer {
-  color:black;
+  color: black;
 }
 
 .masthead {
-    background-color: #971b00;
+  background-color: #971b00;
 }
 
-
-// original kind of 
+// original kind of
 
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
 
 // Dorian
-.page__content p,.page__content li,.page__content dl {
-    font-size: 0.8em
+.page__content p,
+.page__content li,
+.page__content dl {
+  font-size: 0.8em;
 }
 
 code {
-	font-size: 0.8em;
+  font-size: 0.8em;
 }
 
 div.highlighter-rouge {
-	line-height: 1;
+  line-height: 1;
 }
-
 
 // seems that the 1em default is not taking in account the bullet of list so needed to increase
 .align-right {
-	margin-left: 2em;
+  margin-left: 2em;
 }
 
 .align-left {
-	margin-right: 2em;
+  margin-right: 2em;
 }
-
 
 // default is max-width: 100%. meaning that it is overwritting what I want in kramdown
 img {
-	max-width: auto;
+  max-width: auto;
 }
-
 
 // color dorian
 a {
-    color: #ffd670;
+  color: #ffd670;
 }
 
-a:focus,button:focus {
-    outline: thin dotted #ab955e;
-    outline: 5px auto #ab955e;
+a:focus,
+button:focus {
+  outline: thin dotted #ab955e;
+  outline: 5px auto #ab955e;
 }
 
 html {
-    background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 .greedy-nav {
-    background: #971b00;
+  background: #971b00;
 }
 
 .page__footer {
-    background-color: #971b00;
+  background-color: #971b00;
 }
 
 .toc .nav__title {
-    background: #3db125;
+  background: #3db125;
 }
 
 .toc {
-    background-color: #211a01;
+  background-color: #211a01;
 }
-
-
-
-
-

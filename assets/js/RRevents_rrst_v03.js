@@ -25,15 +25,14 @@ function renderEventCards(events, container) {
 
         card.innerHTML = `
             <div class="EventCardHeader">
+                ${event[6] ? `<img class="flag" src="https://my.raceresult.com/graphics/flags/${event[6]}.gif" alt="">` : ''}
+                <div class="EventCardDate">${event[3]}</div>
                 <img class="icon" src="https://my.raceresult.com/RREvents/eventtypes/${event[1]}.png" alt="">
-                ${event[10] ? `<span>${event[10]}</span>` : ''}
             </div>
             <div class="EventCardCity">
                 ${event[5]} 
-                ${event[6] ? `<img class="flag" src="https://my.raceresult.com/graphics/flags/${event[6]}.gif" alt="">` : ''}
             </div>
             <div class="EventCardName">${event[2]}</div>
-            <div class="EventCardDate">${event[3]}</div>
         `;
 
         container.appendChild(card);

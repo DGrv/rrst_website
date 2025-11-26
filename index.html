@@ -6,13 +6,6 @@ layout: events
 
 <style>
 
-h2 {
-  color: #bd1500;
-}
-
-div.EventCardsContainer {
-  color:black;
-}
 
 .EventCardsContainer {
     display: grid;
@@ -29,6 +22,7 @@ div.EventCardsContainer {
     display: flex;
     flex-direction: column;
     transition: transform 0.2s, box-shadow 0.2s;
+    font-size: 0.8em;
 }
 
 .EventCard:hover {
@@ -52,7 +46,10 @@ div.EventCardsContainer {
 .EventCardHeader {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+
+    justify-content: space-between; /* distributes first, middle, last evenly */
+    gap: 10px; /* optional spacing between items */
 }
 
 .EventCardCity {
@@ -62,7 +59,9 @@ div.EventCardsContainer {
 
 .EventCardDate {
     color: #bd1500;
-    font-size: 0.9em;
+    font-size: 1em;
+    text-align: center;
+    flex: 1; /* makes the date expand and stay centered */
 }
 
 
@@ -74,8 +73,8 @@ div.EventCardsContainer {
 }
 
 #eventSearchInput {
-    width: 80%;
-    max-width: 400px;
+    width: 100%;
+    max-width: 1200px;
     padding: 8px 12px;
     font-size: 1em;
     border-radius: 8px;
