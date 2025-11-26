@@ -1,0 +1,36 @@
+---
+permalink: /
+layout: events
+---
+
+This is my home page
+
+<link rel="stylesheet" type="text/css" href="https://my.raceresult.com/RREvents/style.css">
+<div class="EventTable" id="tEventTable">
+  <div>
+    <div>&nbsp;</div>
+    <div>&nbsp;</div>
+    <div>City</div>
+    <div>Event</div>
+    <div>Date</div>
+  </div>
+</div>
+
+
+<!-- <script type="text/javascript" src="https://my.raceresult.com/RREvents/RREvents.js"></script>
+<script type="text/javascript">
+  let options = { dateFormat: 'dd.mm.yyyy' };
+  let rre = new RREvents(document.getElementById("tEventTable"), null, 'en', options);
+  rre.server = "https://my.raceresult.com";
+  rre.user = 846;
+  //rre.year=2023;
+  //rre.group=1234;
+  //rre.eventlink="http://your.webseite.com/events/show?eventid=[eventid]";
+  //rre.openInNewWindow=false;
+  rre.loadEvents(function (resultSize) { return true; });
+</script> -->
+
+<script type="text/javascript" src='{{ "/assets/js/RREvents_rrst_v02.js" | relative_url}}'></script>
+<script type="text/javascript">
+  loadMyEvents(2025, 6);
+</script>

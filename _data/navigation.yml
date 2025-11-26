@@ -1,0 +1,34 @@
+# main links
+main:
+  - title: "Veranstaltung"
+    url: /
+  - title: "Ergebnisse"
+    url: /results/
+  - title: "Über uns" 
+    url: /team/
+
+# this is the navigation sidebar if you click on code or maps for example.
+# it is refered there as
+# ---
+# sidebar:
+#   nav: navmaps
+# ---
+
+# ---------------------------------CAREFUL----------------------------------------
+# do not use liquid filter in navigation. Jekyll take it as a static file
+# so <img src="{{ '/files/icon/Tatoo_v02_icon.png' | absolute_url }}" class="emoji" />
+# this will not work
+
+
+# navmaps:
+  # - title: "Maps"
+    # url: /maps/
+    # children:
+    # - title: <img src="https://dgrv.github.io/dorian-gravier/files/icon/loca.png" class="emoji" /> Outdoor
+      # url: /maps/leaflet/
+    # - title: <img src="https://dgrv.github.io/dorian-gravier/files/icon/Tatoo_v02_icon.png" class="emoji" /> Bike Trip 2022
+      # url: /maps/bt/
+    # - title: <img src="https://dgrv.github.io/dorian-gravier/files/icon/Tatoo_v02_icon.png" class="emoji" /> Bike Trip 2025
+      # url: /maps/bt2025/
+    # - title: <img src="https://dgrv.github.io/dorian-gravier/files/icon/mountain_small.png" class="emoji"  /> Legendary Multipitch
+      # url: /maps/climbing/
