@@ -5,6 +5,44 @@ search: false
 
 @charset "utf-8";
 
+
+// Skins
+/* Colors */
+// to place before the @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
+// and without !default tag, $primary-color: #00adb5 !default;
+$primary-color: #2c2c2c;
+
+ /*add dorian */
+ /*add dorian */
+ /*add dorian */
+ /*add dorian */
+
+article img {
+   &.emoji {          
+      width: 20px;      
+      height: 20px;     
+    }                   
+    &.emojibig {        
+      width: 50px;      
+      height: 50px;     
+    }
+}
+
+h2 {
+  color: #971b00;
+}
+
+div.EventCardsContainer {
+  color:black;
+}
+
+.masthead {
+    background-color: #971b00;
+}
+
+
+// original kind of 
+
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
 
@@ -53,15 +91,15 @@ html {
 }
 
 .greedy-nav {
-    background: #bd1500;
+    background: #971b00;
 }
 
 .page__footer {
-    background-color: #bd1500;
+    background-color: #971b00;
 }
 
 .toc .nav__title {
-    background: #bd1500;
+    background: #3db125;
 }
 
 .toc {
@@ -69,28 +107,6 @@ html {
 }
 
 
- /*add dorian */
- /*add dorian */
- /*add dorian */
- /*add dorian */
 
-article img {
-   &.emoji {          
-      width: 20px;      
-      height: 20px;     
-    }                   
-    &.emojibig {        
-      width: 50px;      
-      height: 50px;     
-    }
-}
-
-h2 {
-  color: #bd1500;
-}
-
-div.EventCardsContainer {
-  color:black;
-}
 
 
