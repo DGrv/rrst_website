@@ -4,161 +4,11 @@ layout: events
 ---
 
 
-<style>
-  .EventCardsContainer {
-    display: grid;
-    /* grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); */
-    flex-direction: column;
-    /* stack cards vertically */
-    gap: 16px;
-    padding: 10px;
-  }
-
-  /* If you want the card width to shrink on small screens: */
-  @media (max-width: 600px) {
-    .EventCard {
-      padding: 12px;
-    }
-  }
-
-
-  .EventCardColumns {
-    display: flex;
-    gap: 25px;
-    /* Abstand zwischen Spalten */
-  }
-
-  .EventCardLogo {
-    flex: 0 0 100px;
-    /* feste Breite für Logo */
-  }
-
-  .EventCardLogo img.logo {
-    width: 100%;
-    height: 100%;
-    /* volle Höhe der Karte */
-    object-fit: contain;
-    /* Bild proportional skalieren */
-    border-radius: 8px;
-  }
-
-  .EventCardContent {
-    flex: 1;
-    /* restlicher Platz für Inhalt */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 6px;
-  }
-
-
-
-
-  .EventCard {
-    width: 100%;
-    /* full width of container */
-    max-width: 1200px;
-    /* optional, limits width on large screens */
-    margin: 0 auto;
-    /* center the card */
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.2s, box-shadow 0.2s;
-    font-size: 0.8em;
-  }
-
-  .EventCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-  }
-
-  .EventCard img.icon {
-    width: 32px;
-    height: 32px;
-    margin-bottom: 8px;
-  }
-
-  .EventCard img.flag {
-    width: 24px;
-    height: 16px;
-    margin-right: 8px;
-    vertical-align: middle;
-  }
-
-  .EventCardHeader {
-    display: flex;
-    align-items: center;
-    margin-bottom: 6px;
-
-    justify-content: space-between;
-    /* distributes first, middle, last evenly */
-    gap: 10px;
-    /* optional spacing between items */
-  }
-
-  .EventCardName {
-    font-weight: bold;
-  }
-
-  .EventCardCity {
-    margin-bottom: 4px;
-  }
-
-  .EventCardDate {
-    color: #bd1500;
-    font-size: 1em;
-    text-align: center;
-    flex: 1;
-    /* makes the date expand and stay centered */
-  }
-
-
-
-  .EventSearchContainer {
-    width: 100%;
-    margin-bottom: 16px;
-    text-align: center;
-  }
-
-  #eventSearchInput {
-    width: 100%;
-    max-width: 1200px;
-    padding: 8px 12px;
-    font-size: 1em;
-    color: #000000;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  #searchResultsContainer h2 {
-    display: block;
-    width: 100%;
-    margin: 20px 0 10px 0;
-    font-size: 1.6rem;
-    font-weight: bold;
-  }
-
-
-  #eventSearchInput.loading {
-    cursor: not-allowed;
-    color: #999;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" stroke="%23999" stroke-width="10" fill="none" stroke-dasharray="283" stroke-dashoffset="75"><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"/></circle></svg>');
-    background-repeat: no-repeat;
-    background-position: right 8px center;
-    background-size: 16px 16px;
-  }
-</style>
-
 
 
 
 <!-- 0	ID
-1	?
+1	icon
 2	Name
 3	Start
 4	End
@@ -192,32 +42,67 @@ layout: events
   rre.loadEvents(function (resultSize) { return true; });
 </script> -->
 
+<style>
+/* Container for type filter icons */
+#eventTypeFilterContainer {
+    display: flex;            /* horizontal row */
+    flex-wrap: wrap;          /* wrap icons to next line if needed */
+    gap: 8px;                 /* space between icons */
+    margin-top: 8px;          /* space from search input */
+    justify-content: center;  /* center icons horizontally */
+    align-items: center;      /* vertically center if needed */
+}
 
+/* Each type icon uses same styling as card icons */
+#eventTypeFilterContainer img.EventTypeIcon {
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#eventTypeFilterContainer img.EventTypeIcon:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    border-radius: 4px;
+}
+
+
+
+</style>
 
 
 
 
 <div class="EventSearchContainer">
   <input type="text" id="eventSearchInput" placeholder="Search events..." />
+   <!-- Type filter icons row -->
+    <div id="eventTypeFilterContainer"></div>
 </div>
 
 <div id="searchResultsContainer" style="display:none;"></div>
 <div id="allEventsContainer"></div>
 
-<script type="text/javascript" src='{{ "/assets/js/RRevents_rrst_v05.js" | relative_url}}'></script>
+<script type="text/javascript" src='{{ "/assets/js/RRevents_rrst_v06.js" | relative_url}}'></script>
 
 <script type="text/javascript">
 
-  (async () => {
+   (async () => {
     const searchInput = document.getElementById("eventSearchInput");
     searchInput.disabled = true;
     searchInput.classList.add("loading");
     searchInput.placeholder = "Loading events...";
 
-    await loadAllEventCards(2022, 2025); // your async function
+    // Wait for all events to load
+    await loadAllEventCards(2022, 2025);
 
+    // Activate search input
     searchInput.disabled = false;
     searchInput.classList.remove("loading");
     searchInput.placeholder = "Search events...";
+
+    // Populate event type icons AFTER allEvents is ready
+    renderTypeFilters(allEvents);
   })();
+
 </script>

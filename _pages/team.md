@@ -8,4 +8,14 @@ author_profile: false
 
 
 
-Here is my team page
+<h1>Meet the Team</h1>
+
+<div id="team-container" class="team-grid"></div>
+
+
+
+<script type="text/javascript" src='{{ "/assets/js/team_rrst_v01.js" | relative_url}}'></script>
+
+<script type="text/javascript">
+loadTeam().then(renderTeam);
+</script>
