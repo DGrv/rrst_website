@@ -185,6 +185,11 @@ async function loadAllEventCards(startYear, endYear) {
 
     allEvents.push(...serverEvents, ...customEvents);
 
+    // Remove duplicates
+    allEvents = allEvents.filter((event, index, self) =>
+        index === self.findIndex(e => e.id === event.id)
+    );
+
     // now render
     renderEventsByMonth(allEvents, container);
 
@@ -258,7 +263,24 @@ async function loadCustomEvents() {
             if (!resp.ok) continue;
 
             const data = await resp.json();
-            temp.push(...data);
+
+            // Map array to objects with named keys for clarity
+            const data2 = data.map(e => ({
+                id: e[0],          // event ID
+                icon: e[1],        // icon type
+                name: e[2],        // event name
+                start: e[3],       // start date
+                end: e[4],         // end date
+                city: e[5],        // city
+                countryCode: e[6], // country code for flag
+                lat: e[7],         // latitude
+                lon: e[8],         // longitude
+                country: e[9],     // country full name
+                typeFull: e[10],   // type description
+                extra: e[11]       // optional additional data
+            }));
+
+            temp.push(...data2);
 
         } catch (err) {
             console.error("Failed custom JSON:", file);
