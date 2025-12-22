@@ -6,6 +6,8 @@ main:
     url: /services/
   - title: "Über uns" 
     url: /team/
+  - title: "Kontakt" 
+    url: /contact/
 
 # this is the navigation sidebar if you click on code or maps for example.
 # it is refered there as
