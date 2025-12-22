@@ -179,6 +179,7 @@ async function loadAllEventCards(startYear, endYear) {
     container.innerHTML = "";
     allEvents = []; // reset global array
 
+    // 1️⃣ Load RaceResult events
     // Loop from newest year/month to oldest
     for (let year = endYear; year >= startYear; year--) {
         for (let month = 12; month >= 1; month--) {
@@ -218,9 +219,109 @@ async function loadAllEventCards(startYear, endYear) {
         }
     }
 
+
+    // 2️⃣ Load custom events
+    await loadCustomEvents(container);
+
+
     // Activate search after all events loaded
     setupEventSearch(allEvents);
 }
+
+// --------------------
+// Load local json
+// --------------------
+
+async function loadCustomEvents() {
+    const folder = "/assets/data/events/";
+
+    // List of your JSON files
+    const files = [
+        "events_2024.json",
+        "events_2023.json",
+        "events_2022.json",
+        "events_2021.json",
+        "events_2020.json",
+        "events_2019.json",
+        "events_2018.json",
+        "events_2017.json",
+        "events_2016.json",
+        "events_2015.json",
+        "events_2014.json",
+        "events_2013.json",
+        "events_2012.json",
+        "events_2011.json",
+        "events_2010.json",
+        "events_2009.json",
+        "events_2008.json",
+        "events_2007.json",
+        "events_2006.json",
+        "events_2005.json",
+    ];
+
+    for (const file of files) {
+        try {
+            const response = await fetch(folder + file);
+            if (!response.ok) continue;
+
+            const customData = await response.json();
+
+            customData.forEach(event => {
+                // push to global
+                allEvents.push(event);
+
+                // determine month + year from start date
+                const date = new Date(event.start);
+                const month = date.getMonth() + 1;
+                const year = date.getFullYear();
+
+                // find existing monthTitle
+                let monthHeaders = container.querySelectorAll("h2");
+                let monthHeader = null;
+                let monthContainer = null;
+
+                monthHeaders.forEach(h2 => {
+                    if (h2.textContent === formatMonthYear(month, year)) {
+                        monthHeader = h2;
+                        monthContainer = h2.nextElementSibling;
+                    }
+                });
+
+                // If no container for that month exists, create one
+                if (!monthContainer) {
+                    const monthTitle = document.createElement("h2");
+                    monthTitle.textContent = formatMonthYear(month, year);
+                    monthTitle.style.marginTop = "32px";
+                    container.appendChild(monthTitle);
+
+                    monthContainer = document.createElement("div");
+                    monthContainer.className = "EventCardsContainer";
+                    container.appendChild(monthContainer);
+                }
+
+                // Render card into correct month container
+                renderEventCards([event], monthContainer);
+            });
+
+        } catch (err) {
+            console.error("Failed custom JSON:", file);
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // --------------------

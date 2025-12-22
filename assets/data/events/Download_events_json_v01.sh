@@ -1,0 +1,17 @@
+#!/bin/bash
+
+BASE_URL="https://my.raceresult.com/RREvents/list"
+USER=846
+
+for YEAR in $(seq 1990 2024); do
+    OUTPUT_FILE="events_${YEAR}.json"
+    URL="${BASE_URL}?user=${USER}&year=${YEAR}"
+
+    echo "Fetching ${YEAR} → ${OUTPUT_FILE} ..."
+    curl -s "${URL}" -o "${OUTPUT_FILE}"
+
+    # Optional: small delay to avoid spamming server
+    sleep 2
+done
+
+echo "Done!"
