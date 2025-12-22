@@ -204,7 +204,6 @@ async function loadServerEvents(startYear, endYear) {
     const today = new Date();
 
     for (let year = endYear; year >= startYear; year--) {
-        if (year === today.getFullYear()) continue;
 
         try {
             const events = await fetchEvents({
