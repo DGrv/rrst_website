@@ -4,8 +4,25 @@ layout: single
 sidebar:
   nav: navtools
 author_profile: false
-image: /assets/images/banner/led.jpg
+header:
+  image: "/assets/images/header/led.jpg"
 ---
+
+
+<h1>Beispielen von LED Balken Design</h1>
+
+Designed and used by us with the help of dbnetsoft softwares: [ScreenPro](https://www.dbnetsoft.com/turnkeysoftware/screens/) and [RaceResultExchange](https://www.dbnetsoft.com/turnkeysoftware/raceresultexchange/).
+
+
+
+
+
+![dbnetsoft logo]({{ "/assets/images/logo/dbnetsoft_logo.png" | relative_url }})
+
+<br>
+<br>
+<br>
+<br>
 
 <style>
   #led {
@@ -17,18 +34,6 @@ image: /assets/images/banner/led.jpg
     height: auto;
   }
 </style>
-
-
-<h1>Beispielen von LED Balken Design</h1>
-
-Designed and used by us with the help of dbnetsoft softwares: [ScreenPro](https://www.dbnetsoft.com/turnkeysoftware/screens/) and [RaceResultExchange](https://www.dbnetsoft.com/turnkeysoftware/raceresultexchange/).
-
-![dbnetsoft logo]({{ "/assets/images/logo/dbnetsoft_logo.png" | relative_url }})
-
-<br>
-<br>
-<br>
-<br>
 
 {% assign images = site.static_files
    | where_exp: "f", "f.path contains '/assets/images/services/led/'"

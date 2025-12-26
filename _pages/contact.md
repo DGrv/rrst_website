@@ -4,6 +4,8 @@ layout: single
 sidebar:
   nav: navtools
 author_profile: false
+header:
+    image: /assets/images/header/contact.png
 ---
 
 <h1>Kontaktieren Sie uns</h1>

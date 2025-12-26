@@ -4,6 +4,8 @@ layout: single
 sidebar:
   nav: navtools
 author_profile: false
+header:
+  image: /assets/images/header/team.jpg
 ---
 
 
