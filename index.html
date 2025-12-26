@@ -34,12 +34,36 @@ layout: events
   rre.loadEvents(function (resultSize) { return true; });
 </script> -->
 
+<style>
+  #loading {
+    width: 100px;
+    height: 100px;
+    border: 20px solid #e5e5e5;
+    border-top: 20px solid #c41018;
+    border-radius: 50%;
+    animation: spin1 1s linear infinite;
+    display: block;
+    /* required for auto margins to work */
+    margin: 0 auto;
+    /* centers horizontally */
+  }
+
+  #loading.hide {
+    display: none;
+  }
+
+  @keyframes spin1 {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
 
 
 
 <div class="EventSearchContainer">
   <input type="text" id="eventSearchInput" placeholder="Search events..." />
- <!-- Type filter icons row -->
+  <!-- Type filter icons row -->
   <div id="eventTypeFilterContainer"></div>
 
   <!-- Year filter row -->
@@ -48,13 +72,16 @@ layout: events
 
 <div id="searchResultsContainer" style="display:none;"></div>
 <div id="allEventsContainer"></div>
+<div id="loading"></div>
 
-<script type="text/javascript" src='{{ "/assets/js/RRevents_rrst.js" | relative_url}}'></script>
+<script src='{{ "/assets/js/RRevents_rrst.js" | relative_url }}'></script>
+
 
 <script type="text/javascript">
 
-   (async () => {
+  (async () => {
     const searchInput = document.getElementById("eventSearchInput");
+    const loadingvar = document.getElementById("loading");
     searchInput.disabled = true;
     searchInput.classList.add("loading");
     searchInput.placeholder = "Loading events...";
@@ -66,6 +93,7 @@ layout: events
     searchInput.disabled = false;
     searchInput.classList.remove("loading");
     searchInput.placeholder = "Search events...";
+    loadingvar.classList.add("hide") // hide loading div
 
     // Populate event type icons AFTER allEvents is ready
     renderTypeFilters(allEvents);

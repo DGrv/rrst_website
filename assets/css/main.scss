@@ -10,7 +10,8 @@ search: false
 /*add dorian */
 /*add dorian */
 
-// Skins
+// original kind of
+
 /* Colors */
 // to place before the @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 // and without !default tag, $Color1: #00adb5 !default;
@@ -24,19 +25,39 @@ $BGColor1: #e5e5e5;
 $BGColor2: #ffffff;
 
 
+@font-face {
+  font-family: 'Kelson';
+  src: url('{{ "/assets/fonts/Armasen - Kelson.woff" | relative_url }}') format('woff');
+  // src: url('{{ "/assets/fonts/Armasen - Kelson-Medium.woff" | relative_url }}') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
 
+// $sans-serif: -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI",
 
-
-
-
-// original kind of
 
 @import "minimal-mistakes/skins/{{ site.minimal_mistakes_skin | default: 'default' }}"; // skin
 @import "minimal-mistakes"; // main partials
+// Skins
 
 // keep the css behind the @import
 // keep the css behind the @import
 // keep the css behind the @import
+
+
+#site-nav {
+    font-family: 'Kelson', sans-serif !important;
+    // font-size: 1.5em !important;
+    letter-spacing: 0.05em; // try 0.05em → 0.1em
+}
+
+
+
+
+
+
+
+
 
 p {
   color: $Color2;
@@ -273,7 +294,7 @@ html {
   max-width: 1000px;
   padding: 8px 12px;
   font-size: 1em;
-  color: #000000;
+  color: $BGColor2;
   border-radius: 8px;
   border: 1px solid #ccc;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -289,12 +310,13 @@ html {
 
 #eventSearchInput.loading {
   cursor: not-allowed;
-  color: #999;
+  color: $Color1;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" stroke="%23999" stroke-width="10" fill="none" stroke-dasharray="283" stroke-dashoffset="75"><animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="1s" repeatCount="indefinite"/></circle></svg>');
   background-repeat: no-repeat;
   background-position: right 8px center;
   background-size: 16px 16px;
 }
+
 
 // search filter --------------------------------------------------------------------------------------------
 // search filter --------------------------------------------------------------------------------------------
@@ -317,6 +339,7 @@ html {
   border-radius: 6px;
   border: 1px solid #ccc;
   background-color: $BGColor1;
+  color: $Color2;
   cursor: pointer;
   font-weight: bold;
   transition: background-color 0.2s;

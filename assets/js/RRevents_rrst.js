@@ -1,9 +1,12 @@
+---
+---
 
+// ---
+// ---
+// Keep this from the yml to be sure that liquid is used
+// it will transform : {{ "/assets/data/services.tsv" | relative_url }}
 
-
-const assetsPath = "/rrst_website/assets"
-
-
+const base = "{{ site.baseurl }}";    // example: "/rrst_website" or ""
 
 // --------------------
 // Fetch events from RaceResult API
@@ -50,24 +53,24 @@ function renderEventCards(events, container) {
             <div class="EventCardColumns">
                 <!-- Left column: Logo -->
                 <div class="EventCardLogo">
-                    <img class="logo" src="${assetsPath}/images/logo/events/logo_${event.id}.png" alt="" onerror="if (!this.dataset.tried) { this.src='https://my.raceresult.com/${event.id}/logo'; this.dataset.tried='true'; } else { this.style.display='none'; }">
+                    <img class="logo" src="${base}/assets/images/logo/events/logo_${event.id}.png" alt="" onerror="if (!this.dataset.tried) { this.src='https://my.raceresult.com/${event.id}/logo'; this.dataset.tried='true'; } else { this.style.display='none'; }">
                 </div>
 
                 <!-- Right column: Event information -->
                 <div class="EventCardContent">
                     <div class="EventCardHeader">
-                    ${event.countryCode ? `<img class="flag" src="${assetsPath}/images/flags/${event.countryCode}_black.png" alt="">` : ''}
+                    ${event.countryCode ? `<img class="flag" src="${base}/assets/images/flags/${event.countryCode}_black.png" alt="">` : ''}
                     <div class="EventCardDate">${event.start}</div>
-                    <img class="icon" src="${assetsPath}/images/logo/eventtypes/${event.icon}.png" alt="">
+                    <img class="icon" src="${base}/assets/images/logo/eventtypes/${event.icon}.png" alt="">
                     </div>
                     <div class="EventCardName">${event.name}</div>
                     <div class="EventCardCity">${event.city}</div>
                     </div>
                     </div>
                     `;
-                    // <img class="icon" src="https://my.raceresult.com/RREvents/eventtypes/${event.icon}.png" alt="">
-                    //${event.countryCode ? `<img class="flag" src="https://my.raceresult.com/graphics/flags/${event.countryCode}.gif" alt="">` : ''}
-                    
+        // <img class="icon" src="https://my.raceresult.com/RREvents/eventtypes/${event.icon}.png" alt="">
+        //${event.countryCode ? `<img class="flag" src="https://my.raceresult.com/graphics/flags/${event.countryCode}.gif" alt="">` : ''}
+
         // Make the whole card clickable → open event page in new tab
         card.style.cursor = "pointer";
         card.addEventListener("click", () => {
@@ -184,6 +187,7 @@ function setupEventSearch(allEvents) {
 let allEvents = []; // global for search
 
 async function loadAllEventCards(startYear, endYear) {
+
     const container = document.getElementById("allEventsContainer");
     container.innerHTML = "";
     allEvents = [];
@@ -198,6 +202,7 @@ async function loadAllEventCards(startYear, endYear) {
     allEvents = allEvents.filter((event, index, self) =>
         index === self.findIndex(e => e.id === event.id)
     );
+
 
     // now render
     renderEventsByMonth(allEvents, container);
@@ -391,7 +396,7 @@ function renderTypeFilters(allEvents) {
 
     Object.keys(uniqueTypes).forEach(type => {
         const img = document.createElement("img");
-        img.src = `${assetsPath}/images/logo/eventtypes/${uniqueTypes[type]}.png`;
+        img.src = `${base}/assets/images/logo/eventtypes/${uniqueTypes[type]}.png`;
         img.alt = type;
         img.title = type;
         img.className = "EventTypeIcon"; // you can style this via CSS

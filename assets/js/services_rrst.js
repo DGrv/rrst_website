@@ -12,21 +12,35 @@ const base = "{{ site.baseurl }}";    // example: "/rrst_website" or ""
 
 
 function renderServices(services) {
-    const container = document.getElementById("services-container");
-  
-    services.forEach(member => {
-      const card = document.createElement("div");
-      card.classList.add("services-card");
-  
+  const container = document.getElementById("services-container");
+
+  services.forEach(member => {
+    const card = document.createElement("div");
+    card.classList.add("services-card");
+
+    // Inner content (always the same)
+    const content = `
+      <img src="${base}/assets/images/services/${member.picture}"
+           alt="${member.name}"
+           onerror="this.style.display='none';">
+      <h3>${member.name}</h3>
+      <p>${member.desc}</p>
+    `;
+
+    // Wrap with <a> only if link exists and is not empty
+    if (member.link && member.link.trim() !== "") {
       card.innerHTML = `
-        <img src="${base}/assets/images/services/${member.picture}" alt="${member.name}" onerror="this.style.display='none';">
-        <h3>${member.name}</h3>
-        <p>${member.desc}</p>
+        <a href="${base}/${member.link}">
+          ${content}
+        </a>
       `;
-  
-      container.appendChild(card);
-    });
-  }
+    } else {
+      card.innerHTML = content;
+    }
+
+    container.appendChild(card);
+  });
+}
 
 
 async function loadServices() {

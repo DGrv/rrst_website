@@ -6,23 +6,25 @@ sidebar:
 author_profile: false
 ---
 
-<h1>Kontaktieren Sie uns</h1>    
+<h1>Kontaktieren Sie uns</h1>
 
 <form id="contactForm">
   <label for="name">Ihre Name</label>
   <input type="text" id="name" required>
 
-  <label for="email">Ihre Email</label>
-  <input type="email" id="email" required>
+<label for="email">Ihre Email</label>
+<input type="email" id="email" required>
 
-  <label for="message">Ihre Nachricht</label>
-  <textarea id="message" required></textarea>
+<label for="message">Ihre Nachricht</label>
+<textarea id="message" required></textarea>
 
 </form>
 
 <button id="contactButton" type="submit">Schicken</button>
 
 <p id="status"></p>
+
+
 
 <script>
 document.getElementById("contactForm").addEventListener("submit", async (e) => {

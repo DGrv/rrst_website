@@ -20,6 +20,8 @@ for ff in $(ls -1r *.json); do
             if grep -q "not found" "${outF}/temp.png"; then # no logo
                 convert -size 100x100 xc:none "${outF}/logo_${line}.png" # create empty png
                 cecho -y "\tCreated empty png"
+            elif grep -q "too many request" "${outF}/temp.png"; then
+                sleep 400
             else
                 convert "${outF}/temp.png" -resize x100 "${outF}/logo_${line}.png"
                 # echo convert "${outF}/temp.png" -resize x100 "${outF}/logo_${line}.png"
@@ -29,7 +31,7 @@ for ff in $(ls -1r *.json); do
                     cecho -r "\tNope"
                 fi
             fi
-            sleep 5
+            sleep 10
         else
             cecho -b "\tLogo file exists"
         fi
