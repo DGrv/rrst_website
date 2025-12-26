@@ -147,6 +147,7 @@ exclude: # otherwse way too slow https://stackoverflow.com/questions/26855552/je
   - tmp
   - _site
   - Run_jekyll_local.bat
+  - /assets/images/logo/events
       
 # # Collections
 # collections:
