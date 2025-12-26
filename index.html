@@ -3,10 +3,6 @@ permalink: /
 layout: events
 ---
 
-
-
-
-
 <!-- 0	ID
 1	icon
 2	Name
@@ -19,10 +15,6 @@ layout: events
 9	Country
 10	TypeFull
 11	? -->
-
-
-
-
 
 <!-- From rr original
 <div class="EventTable" id="tEventTable">
@@ -42,48 +34,22 @@ layout: events
   rre.loadEvents(function (resultSize) { return true; });
 </script> -->
 
-<style>
-/* Container for type filter icons */
-#eventTypeFilterContainer {
-    display: flex;            /* horizontal row */
-    flex-wrap: wrap;          /* wrap icons to next line if needed */
-    gap: 8px;                 /* space between icons */
-    margin-top: 8px;          /* space from search input */
-    justify-content: center;  /* center icons horizontally */
-    align-items: center;      /* vertically center if needed */
-}
-
-/* Each type icon uses same styling as card icons */
-#eventTypeFilterContainer img.EventTypeIcon {
-    width: 48px;
-    height: 48px;
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-#eventTypeFilterContainer img.EventTypeIcon:hover {
-    transform: scale(1.1);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    border-radius: 4px;
-}
-
-
-
-</style>
-
 
 
 
 <div class="EventSearchContainer">
   <input type="text" id="eventSearchInput" placeholder="Search events..." />
-   <!-- Type filter icons row -->
-    <div id="eventTypeFilterContainer"></div>
+ <!-- Type filter icons row -->
+  <div id="eventTypeFilterContainer"></div>
+
+  <!-- Year filter row -->
+  <div id="eventYearFilterContainer"></div>
 </div>
 
 <div id="searchResultsContainer" style="display:none;"></div>
 <div id="allEventsContainer"></div>
 
-<script type="text/javascript" src='{{ "/assets/js/RRevents_rrst_v07.js" | relative_url}}'></script>
+<script type="text/javascript" src='{{ "/assets/js/RRevents_rrst.js" | relative_url}}'></script>
 
 <script type="text/javascript">
 
@@ -103,6 +69,8 @@ layout: events
 
     // Populate event type icons AFTER allEvents is ready
     renderTypeFilters(allEvents);
+    renderYearFilters(allEvents);
+
   })();
 
 </script>

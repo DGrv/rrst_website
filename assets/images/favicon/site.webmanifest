@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "RR Swiss Timing",
+  "short_name": "RRst",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

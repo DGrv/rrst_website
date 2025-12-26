@@ -14,7 +14,7 @@ author_profile: false
 
 
 
-<script type="text/javascript" src='{{ "/assets/js/services_rrst_v01.js" | relative_url}}'></script>
+<script type="text/javascript" src='{{ "/assets/js/services_rrst.js" | relative_url}}'></script>
 
 <script type="text/javascript">
 loadServices().then(renderServices);
