@@ -185,6 +185,30 @@ function setupEventSearch(allEvents) {
 // Load all events from startYear to endYear
 // --------------------
 let allEvents = []; // global for search
+let excludedIds = []; // global for search
+
+
+async function loadExcludedEventIds() {
+    try {
+        const res = await fetch(`${base}/exclude_events.txt`, { cache: "no-store" });
+        if (!res.ok) throw new Error("exclude_events.txt not found");
+
+        const text = await res.text();
+
+        const temp = new Set(
+            text
+                .split("\n")
+                .map(line => line.trim())
+                .filter(Boolean)
+        );
+        excludedIds.push(...temp)
+
+    } catch (err) {
+        console.warn("No exclude_events.txt loaded", err);
+        return new Set(); // fail-safe
+    }
+}
+
 
 async function loadAllEventCards(startYear, endYear) {
 
@@ -212,7 +236,6 @@ async function loadAllEventCards(startYear, endYear) {
 
 
 
-
 async function loadServerEvents(startYear, endYear) {
     const temp = [];
     const today = new Date();
@@ -233,7 +256,9 @@ async function loadServerEvents(startYear, endYear) {
         }
     }
 
-    return temp;
+    const temp2 = temp.filter(e => !excludedIds.includes(String(e.id)));
+
+    return temp2;
 }
 
 
@@ -299,8 +324,10 @@ async function loadCustomEvents() {
             console.error("Failed custom JSON:", file);
         }
     }
+    
+    const temp2 = temp.filter(e => !excludedIds.includes(String(e.id)));
 
-    return temp;
+    return temp2;
 }
 
 

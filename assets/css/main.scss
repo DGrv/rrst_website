@@ -23,6 +23,7 @@ $Color3: #e73331;
 $Color4: #a81815;
 $BGColor1: #e5e5e5;
 $BGColor2: #ffffff;
+$text-color: #3b3b3b;
 
 
 @font-face {
@@ -114,17 +115,29 @@ img {
 
 // color dorian
 a {
-  color: #ffd670;
+  color: $Color3;
 }
 
 a:hover {
-  color: $BGColor1 !important;
+  color: $Color4;
+}
+
+a:visited {
+    color: $text-color;
 }
 
 a:focus,
 button:focus {
   outline: thin dotted #6bb9d1;
   outline: 5px auto #6bb9d1;
+}
+
+.greedy-nav a {
+  color: white;
+}
+
+.greedy-nav a:hover {
+  color: white;
 }
 
 input, textarea, select {
@@ -358,8 +371,8 @@ html {
 
 /* Each type icon uses same styling as card icons */
 #eventTypeFilterContainer img.EventTypeIcon {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }

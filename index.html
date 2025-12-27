@@ -63,6 +63,14 @@ layout: events
 
 <div class="EventSearchContainer">
   <input type="text" id="eventSearchInput" placeholder="Search events..." />
+
+  <div id="comingEvents">
+    <img src='{{ "/assets/images/logo/map.png" | relative_url }}' style="height: 50px;"/>
+    <a href='leaflet'>Karte von kommenden Veranstaltungen</a>
+    <img src='{{ "/assets/images/logo/map.png" | relative_url }}' style="height: 50px;"/>
+  </div>
+
+
   <!-- Type filter icons row -->
   <div id="eventTypeFilterContainer"></div>
 
@@ -86,8 +94,23 @@ layout: events
     searchInput.classList.add("loading");
     searchInput.placeholder = "Loading events...";
 
+
+    if (typeof excludedIds === "undefined" || excludedIds.length === 0) {
+        // Only load if futureEvents is undefined or empty
+        await loadExcludedEventIds(); // Always load this here is it used in other functions
+    } else {
+        console.log("excludedIds already loaded, skipping fetch.");
+    }
+
+
+
     // Wait for all events to load
-    await loadAllEventCards(2025, 2026);
+    var actualYear = new Date().getFullYear()
+    if (typeof allEvents === "undefined" || allEvents.length === 0) {
+      await loadAllEventCards(actualYear, actualYear+1);
+    } else {
+        console.log("excludedIds already loaded, skipping fetch.");
+    }
 
     // Activate search input
     searchInput.disabled = false;
