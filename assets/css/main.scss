@@ -419,6 +419,99 @@ html {
   margin-bottom: 15px;
 }
 
+.team-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.team-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 1200px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+}
+
+.team-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 14px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+
+.team-modal-columns {
+    display: flex;
+    gap: 20px; /* space between columns */
+    align-items: flex-start; /* top align */
+    flex-wrap: wrap; /* wrap on small screens */
+}
+
+/* Each column */
+.team-modal-col {
+    flex: 1; /* equally divide space, adjust as needed */
+    min-width: 100px; /* prevent collapsing too small */
+}
+
+#team-modal-col1 {
+    min-width: 500px; /* prevent collapsing too small */
+}
+
+/* Image column */
+.team-modal-image img {
+    max-width: 500px;
+    width: 100%;
+    border-radius: 8px;
+}
+
+.team-modal-image {
+    display: block;
+    margin: auto;
+}
+
+/* Text column */
+.team-modal-text {
+    flex: 2; /* text column slightly bigger */
+}
+
+/* Rows column */
+.team-modal-rows {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.team-modal-row {
+    background: #f2f2f2;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+
+
+
+
+// services -------------------------------
+// services -------------------------------
+// services -------------------------------
+// services -------------------------------
+// services -------------------------------
+// services -------------------------------
+// services -------------------------------
+
 .services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));

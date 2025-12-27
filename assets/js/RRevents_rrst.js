@@ -28,13 +28,15 @@ async function fetchEvents({ server, user, year, month, country }) {
         start: e[3],       // start date
         end: e[4],         // end date
         city: e[5],        // city
-        countryCode: e[6], // country code for flag
+        countryCode: e[6].toLowerCase(), // country code for flag
         lat: e[7],         // latitude
         lon: e[8],         // longitude
         country: e[9],     // country full name
         typeFull: e[10],   // type description
-        extra: e[11]       // optional additional data
+        extra: e[11],       // optional additional data
+        year: e[3].split('-')[0]
     }));
+
 }
 
 
@@ -53,7 +55,7 @@ function renderEventCards(events, container) {
             <div class="EventCardColumns">
                 <!-- Left column: Logo -->
                 <div class="EventCardLogo">
-                    <img class="logo" src="${base}/assets/images/logo/events/logo_${event.id}.png" alt="" onerror="if (!this.dataset.tried) { this.src='https://my.raceresult.com/${event.id}/logo'; this.dataset.tried='true'; } else { this.style.display='none'; }">
+                    <img class="logo" src="${base}/assets/images/logo/events/logo_${event.year}_${event.id}.png" alt="" onerror="if (!this.dataset.tried) { this.src='https://my.raceresult.com/${event.id}/logo'; this.dataset.tried='true'; } else { this.style.display='none'; }">
                 </div>
 
                 <!-- Right column: Event information -->
@@ -61,7 +63,7 @@ function renderEventCards(events, container) {
                     <div class="EventCardHeader">
                     ${event.countryCode ? `<img class="flag" src="${base}/assets/images/flags/${event.countryCode}_black.png" alt="">` : ''}
                     <div class="EventCardDate">${event.start}</div>
-                    <img class="icon" src="${base}/assets/images/logo/eventtypes/${event.icon}.png" alt="">
+                    <img class="icon" src="${base}/assets/images/logo/eventtypes/${event.icon}.png" title="${event.id}" alt="">
                     </div>
                     <div class="EventCardName">${event.name}</div>
                     <div class="EventCardCity">${event.city}</div>
@@ -271,6 +273,7 @@ async function loadCustomEvents() {
 
     // List of your JSON files
     const files = [
+        "events_2025.json",
         "events_2024.json",
         "events_2023.json",
         "events_2022.json",
@@ -310,12 +313,13 @@ async function loadCustomEvents() {
                 start: e[3],       // start date
                 end: e[4],         // end date
                 city: e[5],        // city
-                countryCode: e[6], // country code for flag
+                countryCode: e[6].toLowerCase(), // country code for flag
                 lat: e[7],         // latitude
                 lon: e[8],         // longitude
                 country: e[9],     // country full name
                 typeFull: e[10],   // type description
-                extra: e[11]       // optional additional data
+                extra: e[11],       // optional additional data
+                year: e[3].split('-')[0]
             }));
 
             temp.push(...data2);
@@ -324,7 +328,7 @@ async function loadCustomEvents() {
             console.error("Failed custom JSON:", file);
         }
     }
-    
+
     const temp2 = temp.filter(e => !excludedIds.includes(String(e.id)));
 
     return temp2;

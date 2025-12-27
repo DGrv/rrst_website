@@ -3,8 +3,10 @@
 BASE_URL="https://my.raceresult.com/RREvents/list"
 USER=846
 
-for YEAR in $(seq 1990 2025); do
-    OUTPUT_FILE="events_${YEAR}.json"
+in="/mnt/c/Users/doria/Downloads/GitHub/rrst_website/assets/data/events"
+
+for YEAR in $(seq 2005 2025); do
+    OUTPUT_FILE="${in}/events_${YEAR}.json"
     URL="${BASE_URL}?user=${USER}&year=${YEAR}"
 
 	if [ ! -f "${OUTPUT_FILE}" ]; then
@@ -15,4 +17,4 @@ for YEAR in $(seq 1990 2025); do
     # Optional: small delay to avoid spamming server
 done
 
-echo "Done!"
+cecho -g "Done!"

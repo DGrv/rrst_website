@@ -19,7 +19,7 @@ function renderTeam(team) {
       card.classList.add("team-card");
   
       card.innerHTML = `
-        <img src="${base}/assets/images/team/${member.picture}" alt="${member.name}">
+        <img src="${base}/assets/images/team/${member.picture}" alt="${member.name}" onerror="this.style.display='none';">
         <h3>${member.name}</h3>
         <p>${member.presentation}</p>
       `;
