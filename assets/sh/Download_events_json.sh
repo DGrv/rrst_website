@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ~/.bashrc
+
 BASE_URL="https://my.raceresult.com/RREvents/list"
 USER=846
 
