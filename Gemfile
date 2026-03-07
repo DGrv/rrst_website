@@ -6,6 +6,9 @@ gem "jekyll-remote-theme"
 gem "tzinfo-data"
 # to allow to have the theme offline
 gem "minimal-mistakes-jekyll", path: "../minimal-mistakes"
+gem "csv"
+gem "bigdecimal"
+gem "ostruct"
 
 # If you have any plugins, put them here!
 group :jekyll_plugins do
