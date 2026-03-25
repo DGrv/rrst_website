@@ -11,8 +11,8 @@ const base = "{{ site.baseurl }}";    // example: "/rrst_website" or ""
 // --------------------
 // Fetch events from RaceResult API
 // --------------------
-async function fetchEvents({ server, user, year, month, country }) {
-    const params = new URLSearchParams({ user, year, month, country });
+async function fetchEvents({ server, user, year }) {
+    const params = new URLSearchParams({ user, year });
     const url = `${server}/RREvents/list?${params.toString()}`;
 
     const res = await fetch(url);
@@ -254,7 +254,7 @@ async function loadServerEvents(startYear, endYear) {
             temp.push(...events);
 
         } catch (e) {
-            console.warn("Failed server events", month, year);
+            console.warn("Failed server events", year);
         }
     }
 
