@@ -28,7 +28,8 @@ async function fetchEvents({ server, user, year }) {
         start: e[3],       // start date
         end: e[4],         // end date
         city: e[5],        // city
-        countryCode: e[6].toLowerCase(), // country code for flag
+        countryCode: e[6], // country code for flag
+        // countryCode: e[6].toLowerCase(), // country code for flag
         lat: e[7],         // latitude
         lon: e[8],         // longitude
         country: e[9],     // country full name
@@ -243,18 +244,21 @@ async function loadServerEvents(startYear, endYear) {
     const today = new Date();
 
     for (let year = endYear; year >= startYear; year--) {
-
+        console.log('Current year:', year, typeof year);
+        
         try {
             const events = await fetchEvents({
                 server: "https://my.raceresult.com",
                 user: 846,
-                year
+                year: year
             });
 
             temp.push(...events);
 
         } catch (e) {
-            console.warn("Failed server events", year);
+            console.error("Failed server events", year, e); // Change warn to error
+            console.error("Error message:", e.message); // Add this
+            console.error("Stack trace:", e.stack); // Add this
         }
     }
 
