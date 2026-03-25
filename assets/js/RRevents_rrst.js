@@ -11,31 +11,33 @@ const base = "{{ site.baseurl }}";    // example: "/rrst_website" or ""
 // --------------------
 // Fetch events from RaceResult API
 // --------------------
-async function fetchEvents({ server, user, year }) {
-    const params = new URLSearchParams({ user, year });
+async function fetchEvents({ server, user, year}) {
+    const params = new URLSearchParams({ user, year, });
     const url = `${server}/RREvents/list?${params.toString()}`;
-
+    
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch events: ${res.status}`);
 
-    const data = await res.json(); // RaceResult returns array of arrays
+    const data = await res.json(); // RaceResult returns array of group objects
 
-    // Map array to objects with named keys for clarity
-    return data.map(e => ({
+    // Extract event rows from all groups, then map to named-key objects
+    const rows = data.flatMap(group => group.Events || []);
+    return rows
+    .filter(e => Array.isArray(e) && e.length >= 4)
+    .map(e => ({
         id: e[0],          // event ID
         icon: e[1],        // icon type
         name: e[2],        // event name
         start: e[3],       // start date
         end: e[4],         // end date
         city: e[5],        // city
-        countryCode: e[6], // country code for flag
-        // countryCode: e[6].toLowerCase(), // country code for flag
+        countryCode: e[6]?.toLowerCase() || '', // safe country code
         lat: e[7],         // latitude
         lon: e[8],         // longitude
         country: e[9],     // country full name
         typeFull: e[10],   // type description
-        extra: e[11],       // optional additional data
-        year: e[3].split('-')[0]
+        extra: e[11],      // optional additional data
+        year: e[3]?.split('-')[0] || '' // safe year extraction
     }));
 
 }
@@ -90,6 +92,7 @@ function renderEventCards(events, container) {
 // Normalize strings for accent-insensitive search
 // --------------------
 function normalizeString(str) {
+    if (typeof str !== 'string') return '';
     return str
         .normalize("NFD")                // decompose accented characters
         .replace(/[\u0300-\u036f]/g, "") // remove diacritics
@@ -244,7 +247,6 @@ async function loadServerEvents(startYear, endYear) {
     const today = new Date();
 
     for (let year = endYear; year >= startYear; year--) {
-        console.log('Current year:', year, typeof year);
         
         try {
             const events = await fetchEvents({
@@ -352,19 +354,16 @@ function renderEventsByMonth(events, container) {
             console.warn("Start value:", e.start);
         }
     });
-    const dates = events.map(e => new Date(e.start));
+    const dates = events.map(e => new Date(e.start)).filter(d => !isNaN(d));
+
+    if (dates.length === 0) return;
 
     // compute min + max year
     const minYear = Math.min(...dates.map(d => d.getFullYear()));
     const maxYear = Math.max(...dates.map(d => d.getFullYear()));
 
-    const today = new Date();
-
     for (let year = maxYear; year >= minYear; year--) {
         for (let month = 12; month >= 1; month--) {
-
-            // skip future
-            if (year === today.getFullYear() && month > today.getMonth() + 1) continue;
 
             // filter events belonging to this month/year
             const monthEvents = events.filter(ev => {
