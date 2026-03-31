@@ -44,19 +44,16 @@ function renderServices(services) {
 
 
 async function loadServices() {
-  const response = await fetch('{{ "/assets/data/services.tsv" | relative_url }}');
+  const response = await fetch('{{ "/assets/data/services.csv" | relative_url }}');
   const text = await response.text();
-
   const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
-  const headers = rows.shift().split("\t").map(h => h.trim());
-
+  const headers = rows.shift().split(",").map(h => h.trim());
   const services = rows.map(line => {
-    const cols = line.split("\t");
+    const cols = line.split(",");
     let obj = {};
     headers.forEach((h, i) => obj[h] = cols[i] ? cols[i].trim() : "");
     return obj;
   });
-
   return services;
 }
 
