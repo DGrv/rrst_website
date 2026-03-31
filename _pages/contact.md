@@ -11,18 +11,20 @@ header:
 <h1>Kontaktieren Sie uns</h1>
 
 <form id="contactForm">
-  <label for="name">Ihre Name</label>
+  <label for="name">Deine Name</label>
   <input type="text" id="name" required>
 
-<label for="email">Ihre Email</label>
+<label for="email">  <label for="name">Deine Name</label>
+ Email</label>
 <input type="email" id="email" required>
 
-<label for="message">Ihre Nachricht</label>
+<label for="message">  <label for="name">Deine Name</label>
+ Nachricht</label>
 <textarea id="message" required></textarea>
 
 </form>
 
-<button id="contactButton" type="submit">Schicken</button>
+<button id="contactButton" type="submit">Senden</button>
 
 <p id="status"></p>
 

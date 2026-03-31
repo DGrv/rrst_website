@@ -1,7 +1,7 @@
 # main links
 main:
   - title: "Veranstaltung"
-    url: /
+    url: /events/
   - title: "Services"
     url: /services/
   - title: "Über uns" 

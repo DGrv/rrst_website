@@ -1,0 +1,133 @@
+---
+permalink: /events/
+layout: single
+sidebar:
+  nav: navtools
+author_profile: false
+---
+
+
+
+
+<!-- 0	ID
+1	icon
+2	Name
+3	Start
+4	End
+5	City
+6	CountryCode
+7	lat
+8	lon
+9	Country
+10	TypeFull
+11	? -->
+
+<!-- From rr original
+<div class="EventTable" id="tEventTable">
+<div><div>&nbsp;</div><div>&nbsp;</div><div>City</div><div>Event</div><div>Date</div></div>
+</div>
+<link rel="stylesheet" type="text/css" href="https://my.raceresult.com/RREvents/style.css"> 
+<script type="text/javascript" src="https://my.raceresult.com/RREvents/RREvents.js"></script>
+<script type="text/javascript">
+  let options = { dateFormat: 'dd.mm.yyyy' };
+  let rre = new RREvents(document.getElementById("tEventTable"), null, 'en', options);
+  rre.server = "https://my.raceresult.com";
+  rre.user = 846;
+  //rre.year=2023;
+  //rre.group=1234;
+  //rre.eventlink="http://your.webseite.com/events/show?eventid=[eventid]";
+  //rre.openInNewWindow=false;
+  rre.loadEvents(function (resultSize) { return true; });
+</script> -->
+
+<style>
+  #loading {
+    width: 100px;
+    height: 100px;
+    border: 20px solid #e5e5e5;
+    border-top: 20px solid #c41018;
+    border-radius: 50%;
+    animation: spin1 1s linear infinite;
+    display: block;
+    /* required for auto margins to work */
+    margin: 0 auto;
+    /* centers horizontally */
+  }
+
+  #loading.hide {
+    display: none;
+  }
+
+  @keyframes spin1 {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+
+
+<div class="EventSearchContainer">
+  <input type="text" id="eventSearchInput" placeholder="Search events..." />
+
+  <div id="comingEvents">
+    <img src='{{ "/assets/images/logo/map.png" | relative_url }}' style="height: 50px;"/>
+    <a href='leaflet'>Karte von kommenden Veranstaltungen</a>
+    <img src='{{ "/assets/images/logo/map.png" | relative_url }}' style="height: 50px;"/>
+  </div>
+
+
+  <!-- Type filter icons row -->
+  <div id="eventTypeFilterContainer"></div>
+
+  <!-- Year filter row -->
+  <div id="eventYearFilterContainer"></div>
+</div>
+
+<div id="searchResultsContainer" style="display:none;"></div>
+<div id="allEventsContainer"></div>
+<div id="loading"></div>
+
+<script src='{{ "/assets/js/RRevents_rrst.js" | relative_url }}'></script>
+
+
+<script type="text/javascript">
+
+  (async () => {
+    const searchInput = document.getElementById("eventSearchInput");
+    const loadingvar = document.getElementById("loading");
+    searchInput.disabled = true;
+    searchInput.classList.add("loading");
+    searchInput.placeholder = "Loading events...";
+
+
+    if (typeof excludedIds === "undefined" || excludedIds.length === 0) {
+        // Only load if futureEvents is undefined or empty
+        await loadExcludedEventIds(); // Always load this here is it used in other functions
+    } else {
+        console.log("excludedIds already loaded, skipping fetch.");
+    }
+
+
+
+    // Wait for all events to load
+    var actualYear = new Date().getFullYear()
+    if (typeof allEvents === "undefined" || allEvents.length === 0) {
+      await loadAllEventCards(actualYear, actualYear+1);
+    } else {
+        console.log("excludedIds already loaded, skipping fetch.");
+    }
+
+    // Activate search input
+    searchInput.disabled = false;
+    searchInput.classList.remove("loading");
+    searchInput.placeholder = "Search events...";
+    loadingvar.classList.add("hide") // hide loading div
+
+    // Populate event type icons AFTER allEvents is ready
+    renderTypeFilters(allEvents);
+    renderYearFilters(allEvents);
+
+  })();
+
+</script>
