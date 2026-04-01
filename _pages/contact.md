@@ -8,18 +8,16 @@ header:
     image: /assets/images/header/contact.png
 ---
 
-<h1>Kontaktieren Sie uns</h1>
+<h1>Schreibe uns gerne eine Nachricht</h1>
 
 <form id="contactForm">
-  <label for="name">Deine Name</label>
+  <label for="name">Dein Name</label>
   <input type="text" id="name" required>
 
-<label for="email">  <label for="name">Deine Name</label>
- Email</label>
+<label for="email">Deine Emailaddresse</label>
 <input type="email" id="email" required>
 
-<label for="message">  <label for="name">Deine Name</label>
- Nachricht</label>
+<label for="message">Deine Nachricht</label>
 <textarea id="message" required></textarea>
 
 </form>
