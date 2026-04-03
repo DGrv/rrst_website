@@ -8,7 +8,7 @@ author_profile: false
 
 
 
-<h1>What we offer</h1>
+<h1>Was wir anbieten </h1>
 
 <div id="services-container" class="services-grid"></div>
 
