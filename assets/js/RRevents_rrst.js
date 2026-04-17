@@ -55,24 +55,17 @@ function renderEventCards(events, container) {
 
         // Event card HTML structure
         card.innerHTML = `
-            <div class="EventCardColumns">
-                <!-- Left column: Logo -->
+            <div class="EventCardHeader">
                 <div class="EventCardLogo">
                     <img class="logo" src="${base}/assets/images/logo/events/logo_${event.year}_${event.id}.png" alt="" onerror="if (!this.dataset.tried) { this.src='https://my.raceresult.com/${event.id}/logo'; this.dataset.tried='true'; } else { this.style.display='none'; }">
                 </div>
-
-                <!-- Right column: Event information -->
-                <div class="EventCardContent">
-                    <div class="EventCardHeader">
-                    ${event.countryCode ? `<img class="flag" src="${base}/assets/images/flags/${event.countryCode}_black.png" alt="">` : ''}
-                    <div class="EventCardDate">${event.start}</div>
-                    <img class="icon" src="${base}/assets/images/logo/eventtypes/${event.icon}.png" title="${event.id}" alt="">
-                    </div>
-                    <div class="EventCardName">${event.name}</div>
-                    <div class="EventCardCity">${event.city}</div>
-                    </div>
-                    </div>
-                    `;
+                ${event.countryCode ? `<img class="flag" src="${base}/assets/images/flags/${event.countryCode}_black.png" alt="">` : ''}
+                <div class="EventCardName">${event.name}</div>
+                <div class="EventCardDate">${event.start}</div>
+                <div class="EventCardCity">${event.city}</div>
+                <img class="icon" src="${base}/assets/images/logo/eventtypes/${event.icon}.png" title="${event.id}" alt="">
+            </div>
+            `;
         // <img class="icon" src="https://my.raceresult.com/RREvents/eventtypes/${event.icon}.png" alt="">
         //${event.countryCode ? `<img class="flag" src="https://my.raceresult.com/graphics/flags/${event.countryCode}.gif" alt="">` : ''}
 
@@ -234,8 +227,13 @@ async function loadAllEventCards(startYear, endYear) {
     );
 
 
-    // now render
-    renderEventsByMonth(allEvents, container);
+    // now render — hide next year's events by default
+    const nextYear = new Date().getFullYear() + 1;
+    const defaultEvents = allEvents.filter(e => {
+        const d = new Date(e.start);
+        return isNaN(d) || d.getFullYear() !== nextYear;
+    });
+    renderEventsByMonth(defaultEvents, container);
 
     setupEventSearch(allEvents);
 }
@@ -373,6 +371,8 @@ function renderEventsByMonth(events, container) {
 
             if (monthEvents.length === 0) continue; // skip empty month
 
+            monthEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+
             // create title and container
             const title = document.createElement("h2");
             title.textContent = formatMonthYear(month, year);
@@ -428,12 +428,12 @@ function renderTypeFilters(allEvents) {
         }
     });
 
-    Object.keys(uniqueTypes).forEach(type => {
+    function makeTypeIcon(type) {
         const img = document.createElement("img");
         img.src = `${base}/assets/images/logo/eventtypes/${uniqueTypes[type]}.png`;
         img.alt = type;
         img.title = type;
-        img.className = "EventTypeIcon"; // you can style this via CSS
+        img.className = "EventTypeIcon";
         img.style.cursor = "pointer";
 
         img.addEventListener("click", () => {
@@ -492,8 +492,35 @@ function renderTypeFilters(allEvents) {
             });
         });
 
-        container.appendChild(img);
-    });
+        return img;
+    }
+
+    const allTypes = Object.keys(uniqueTypes);
+    const recentTypes = allTypes.slice(0, 3);
+    const olderTypes = allTypes.slice(3);
+
+    recentTypes.forEach(type => container.appendChild(makeTypeIcon(type)));
+
+    if (olderTypes.length > 0) {
+        const extraDiv = document.createElement("div");
+        extraDiv.className = "year-filter-extra";
+        olderTypes.forEach(type => extraDiv.appendChild(makeTypeIcon(type)));
+
+        const moreBtn = document.createElement("button");
+        moreBtn.textContent = "··· More";
+        moreBtn.className = "year-filter-more-btn";
+        moreBtn.addEventListener("click", () => {
+            const isOpen = extraDiv.classList.toggle("open");
+            moreBtn.textContent = isOpen ? "▲ Less" : "··· More";
+        });
+
+        container.appendChild(moreBtn);
+        container.appendChild(extraDiv);
+    }
+
+    if (allTypes.length > 0) {
+        container.closest(".filter-row").style.display = "flex";
+    }
 }
 
 
@@ -515,36 +542,52 @@ function renderYearFilters(allEvents) {
     // Sort descending
     uniqueYears.sort((a, b) => b - a);
 
-    // Create button for each year
-    uniqueYears.forEach(year => {
+    // Split into recent (first 3) and older years
+    const recentYears = uniqueYears.slice(0, 3);
+    const olderYears = uniqueYears.slice(3);
+
+    function makeYearBtn(year) {
         const btn = document.createElement("button");
         btn.textContent = year;
         btn.className = "year-filter-btn";
-
         btn.addEventListener("click", () => {
             const searchContainer = document.getElementById("searchResultsContainer");
             const fullCalendar = document.getElementById("allEventsContainer");
-
-            // Hide full calendar
             fullCalendar.style.display = "none";
             searchContainer.style.display = "block";
             searchContainer.innerHTML = "";
-
-            // Filter allEvents by selected year
             const filtered = allEvents.filter(e => {
                 const d = new Date(e.start);
                 return !isNaN(d) && d.getFullYear() === year;
             });
-
             if (filtered.length === 0) {
                 searchContainer.innerHTML = `<p>No events found for ${year}.</p>`;
                 return;
             }
-
-            // Use your existing renderEventsByMonth logic
             renderEventsByMonth(filtered, searchContainer);
         });
+        return btn;
+    }
 
-        container.appendChild(btn);
-    });
+    // Render the 3 most recent year buttons
+    recentYears.forEach(year => container.appendChild(makeYearBtn(year)));
+
+    if (olderYears.length > 0) {
+        // Hidden container for older years
+        const extraDiv = document.createElement("div");
+        extraDiv.className = "year-filter-extra";
+        olderYears.forEach(year => extraDiv.appendChild(makeYearBtn(year)));
+
+        // Toggle button
+        const moreBtn = document.createElement("button");
+        moreBtn.textContent = "··· More";
+        moreBtn.className = "year-filter-more-btn";
+        moreBtn.addEventListener("click", () => {
+            const isOpen = extraDiv.classList.toggle("open");
+            moreBtn.textContent = isOpen ? "▲ Less" : "··· More";
+        });
+
+        container.appendChild(moreBtn);
+        container.appendChild(extraDiv);
+    }
 }

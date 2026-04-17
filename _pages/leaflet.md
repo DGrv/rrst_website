@@ -8,7 +8,7 @@ author_profile: false
 
 <h1>Kommenden Veranstaltungen</h1>
 
-<div id="eventsMap" style="width: 100%; height: 700px; margin: 10px 0;"></div>
+<div id="eventsMap" style="width: 100%; height: 700px; margin: 10px 0; border: 3px solid #C41011; border-radius: 6px;"></div>
 
 <link  rel="stylesheet"  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

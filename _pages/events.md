@@ -6,9 +6,6 @@ sidebar:
 author_profile: false
 ---
 
-
-
-
 <!-- 0	ID
 1	icon
 2	Name
@@ -26,7 +23,7 @@ author_profile: false
 <div class="EventTable" id="tEventTable">
 <div><div>&nbsp;</div><div>&nbsp;</div><div>City</div><div>Event</div><div>Date</div></div>
 </div>
-<link rel="stylesheet" type="text/css" href="https://my.raceresult.com/RREvents/style.css"> 
+<link rel="stylesheet" type="text/css" href="https://my.raceresult.com/RREvents/style.css">
 <script type="text/javascript" src="https://my.raceresult.com/RREvents/RREvents.js"></script>
 <script type="text/javascript">
   let options = { dateFormat: 'dd.mm.yyyy' };
@@ -65,23 +62,19 @@ author_profile: false
   }
 </style>
 
-
-
 <div class="EventSearchContainer">
   <input type="text" id="eventSearchInput" placeholder="Search events..." />
 
-  <div id="comingEvents">
-    <img src='{{ "/assets/images/logo/map.png" | relative_url }}' style="height: 50px;"/>
-    <a href='leaflet'>Karte von kommenden Veranstaltungen</a>
-    <img src='{{ "/assets/images/logo/map.png" | relative_url }}' style="height: 50px;"/>
+
+  <!-- Type and Year filter row -->
+  <div class="filter-row" style="display:none">
+    <div id="eventTypeFilterContainer"></div>
+    <div class="filter-divider"></div>
+    <div id="eventYearFilterContainer"></div>
+    <div class="filter-divider"></div>
+  <a href='../leaflet'><img src='{{ "/assets/images/logo/map.png" | relative_url }}' style="height: 50px;"/></a>
   </div>
-
-
-  <!-- Type filter icons row -->
-  <div id="eventTypeFilterContainer"></div>
-
-  <!-- Year filter row -->
-  <div id="eventYearFilterContainer"></div>
+  
 </div>
 
 <div id="searchResultsContainer" style="display:none;"></div>
@@ -89,7 +82,6 @@ author_profile: false
 <div id="loading"></div>
 
 <script src='{{ "/assets/js/RRevents_rrst.js" | relative_url }}'></script>
-
 
 <script type="text/javascript">
 

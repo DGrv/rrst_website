@@ -201,33 +201,17 @@ html {
   }
 }
 
-.EventCardColumns {
-  display: flex;
-  gap: 25px;
-  /* Abstand zwischen Spalten */
-}
-
 .EventCardLogo {
-  flex: 0 0 100px;
-  /* feste Breite für Logo */
+  flex: 0 0 150px;
+  width: 150px;
+  margin-right: 20px;
 }
 
 .EventCardLogo img.logo {
-  width: 100%;
-  height: 100%;
-  /* volle Höhe der Karte */
+  height: 50px;
+  width: 150px;
   object-fit: contain;
-  /* Bild proportional skalieren */
-  border-radius: 8px;
-}
-
-.EventCardContent {
-  flex: 1;
-  /* restlicher Platz für Inhalt */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
+  border-radius: 4px;
 }
 
 .EventCard {
@@ -253,44 +237,76 @@ html {
 }
 
 .EventCard img.icon {
+  flex: 0 0 32px;
   width: 32px;
   height: 32px;
-  margin-bottom: 8px;
 }
 
 .EventCard img.flag {
+  flex: 0 0 24px;
   width: 24px;
   height: 16px;
-  margin-right: 8px;
-  vertical-align: middle;
 }
 
 .EventCardHeader {
   display: flex;
   align-items: center;
-  margin-bottom: 6px;
-
-  justify-content: space-between;
-  /* distributes first, middle, last evenly */
   gap: 10px;
-  /* optional spacing between items */
+  flex-wrap: nowrap;
 }
 
 .EventCardName {
   font-weight: bold;
   font-size: 1.3em;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .EventCardCity {
-  margin-bottom: 4px;
+  flex: 0 0 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .EventCardDate {
+  flex: 0 0 100px;
   color: $Color1;
   font-size: 1.2em;
-  text-align: center;
-  flex: 1;
-  /* makes the date expand and stay centered */
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .EventCardHeader {
+    flex-wrap: wrap;
+  }
+
+  .EventCardLogo {
+    flex: 0 0 80px;
+    width: 80px;
+    margin-right: 10px;
+  }
+
+  .EventCardLogo img.logo {
+    width: 80px;
+  }
+
+  .EventCardName {
+    flex: 1;
+    white-space: normal;
+    min-width: 120px;
+  }
+
+  .EventCardCity {
+    flex: 0 0 auto;
+  }
+
+  .EventCardDate {
+    flex: 0 0 auto;
+  }
 }
 
 .EventSearchContainer {
@@ -344,6 +360,27 @@ html {
   justify-content: center;
 }
 
+.filter-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.filter-row #eventTypeFilterContainer,
+.filter-row #eventYearFilterContainer {
+  margin-top: 8px;
+}
+
+.filter-divider {
+  width: 3px;
+  background-color: #555;
+  align-self: stretch;
+  margin: 4px 0;
+}
+
 .year-filter-btn {
   padding: 4px 10px;
   border-radius: 6px;
@@ -357,6 +394,34 @@ html {
 
 .year-filter-btn:hover {
   background-color: $BGColor1;
+}
+
+.year-filter-more-btn {
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px dashed #888;
+  background-color: transparent;
+  color: $Color2;
+  cursor: pointer;
+  font-style: italic;
+  transition: background-color 0.2s;
+}
+
+.year-filter-more-btn:hover {
+  background-color: $BGColor1;
+}
+
+.year-filter-extra {
+  display: none;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 4px;
+  width: 100%;
+}
+
+.year-filter-extra.open {
+  display: flex;
 }
 
 /* Container for type filter icons */
