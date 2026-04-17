@@ -20,9 +20,9 @@ header:
 <label for="message">Deine Nachricht</label>
 <textarea id="message" required></textarea>
 
-</form>
-
 <button id="contactButton" type="submit">Senden</button>
+
+</form>
 
 <p id="status"></p>
 
