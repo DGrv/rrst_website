@@ -19,12 +19,6 @@ header:
   }
 
 
-
-
-
-
-
-
   /* Horizontal scrollable gallery container */
   .led-gallery-container {
     margin: 30px 0;
@@ -337,7 +331,12 @@ header:
 
 <br>
 
-LED panels use high-frequency refresh. When photographed with certain camera settings, banding or moiré can appear due to synchronization between camera shutter and LED refresh. This does not indicate a defect. Using 60fps (or 120 fps) and 1/60 (or 1/120) shutter eliminates it in most cases.
+<p>Unser LED-Bogen besteht aus zwei Einheiten mit jeweils 8 Panels, wobei jedes Panel eine Auflösung von 128 × 128 Pixeln und eine Größe von 50 × 50 cm hat.
+<br>
+In der Regel wird er an der Start- bzw. Ziellinie mit einer Gesamtbreite von 4 Metern auf beiden Seiten eingesetzt (1024x128px). Dank seines modularen Aufbaus ist das System jedoch sehr flexibel und kann an unterschiedliche Anforderungen angepasst werden. Sollte die vorhandene Bogenkonstruktion keine Breite von 4 Metern zulassen, kann die Installation problemlos auf 3 Meter reduziert werden.</p>
+
+<p>LED panels use high-frequency refresh. When photographed with certain camera settings, banding or moiré can appear due to synchronization between camera shutter and LED refresh. This does not indicate a defect. Using 60fps (or 120 fps) and 1/60 (or 1/120) shutter eliminates it in most cases.
+</p>
 <a href="#led-details-popup" class="led-details-link">More Details</a>
 
 <!-- Hidden popup content for LED display details -->
