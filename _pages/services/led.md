@@ -330,15 +330,46 @@ header:
   </div>
 
 <br>
+<h3>🔧 Technische Details unseres LED-Bogens:</h3>
+<ul>
+  <li>Besteht aus zwei Einheiten mit jeweils 8 Panels</li>
+  <li>Pro Panel: 📺 Auflösung: <b>128 × 128 Pixel</b>📏 Größe: <b>50 × 50 cm</b></li>
+</ul>
 
-<p>Unser LED-Bogen besteht aus zwei Einheiten mit jeweils 8 Panels, wobei jedes Panel eine Auflösung von 128 × 128 Pixeln und eine Größe von 50 × 50 cm hat.
-<p>
-In der Regel wird er an der Start- bzw. Ziellinie mit einer Gesamtbreite von 4 Metern auf beiden Seiten eingesetzt (1024x128px).
-<br> Dank seines modularen Aufbaus ist das System jedoch sehr flexibel und kann an unterschiedliche Anforderungen angepasst werden. Sollte die vorhandene Bogenkonstruktion keine Breite von 4 Metern zulassen, kann die Installation problemlos auf 3 Meter reduziert werden.</p>
+<h3>📍 Einsatz & Maße:</h3>
 
-<p>LED panels use high-frequency refresh. When photographed with certain camera settings, banding or moiré can appear due to synchronization between camera shutter and LED refresh. This does not indicate a defect. Using 60fps (or 120 fps) and 1/60 (or 1/120) shutter eliminates it in most cases.
-</p>
+<ul>
+  <li>🏁 Standardmäßig an der Start- bzw. Ziellinie positioniert</li>
+  <li>↔️ Gesamtbreite: <b>4 Meter</b> (Auflösung: <b>1024 × 128 px</b>)</li>
+  <li>🧩 Modularer Aufbau ermöglicht flexible Anpassung</li>
+  <li>📐 Reduzierbar auf <b>3 Meter Breite</b>, falls erforderlich</li>
+</ul>
+
+<h3>📸 Hinweis zur Darstellung bei Kameraaufnahmen:</h3>
+
+<ul>
+  <li>⚡ Die LED-Panels arbeiten mit hoher Bildwiederholfrequenz</li>
+  <li>📷 Bei bestimmten Kameraeinstellungen können Streifen (Banding) oder Moiré-Effekte auftreten</li>
+  <li>ℹ️ Dies ist kein Defekt, sondern technisch bedingt</li>
+  <li>✅ Empfohlene Einstellungen: <b>60 fps</b> mit <b>1/60</b> Verschlusszeit oder <b>120 fps</b> mit <b>1/120</b> Verschlusszeit  </li>
+</ul>
+
 <a href="#led-details-popup" class="led-details-link">More Details</a>
+
+<p>
+<h3>Was wir von euch brauchen:</h3>
+<ul>
+  <li>Schriftart (für die Zeitanzeige benötigen wir eine <b>Monospace-Schrift</b>)</li>
+  <li>Hauptfarben im Hex-Format (z. B. #869304)</li>
+  <li>Sponsorenlogos als <b>PNG</b> (mit transparentem Hintergrund), idealerweise in gleicher oder höherer Auflösung als die LED-Anzeige</li>
+  <li><b>GIFs</b> und <b>MP4-Dateien</b> sind möglich; GIFs bitte, wenn möglich, mit transparentem Hintergrund</li>
+  <li>Zeitplan / Ablaufplan, was wann angezeigt werden soll</li>
+</ul>
+</p>
+
+<br>
+
+
 
 <!-- Hidden popup content for LED display details -->
   <div id="led-details-popup" class="led-details-popup-content mfp-hide">
@@ -390,12 +421,14 @@ In der Regel wird er an der Start- bzw. Ziellinie mit einer Gesamtbreite von 4 M
     </div>
   </div>
 
-<h1>Beispielen von LED Balken Design</h1>
+<h3>Beispielen von LED Balken Design</h3>
 
-Designed and used by us with the help of dbnetsoft softwares: [ScreenPro](https://www.dbnetsoft.com/turnkeysoftware/screens/) and [RaceResultExchange](https://www.dbnetsoft.com/turnkeysoftware/raceresultexchange/).
+Designed and used by us with the help of dbnetsoft softwares: <a href="https://www.dbnetsoft.com/turnkeysoftware/screens/" target="_blank">ScreenPro</a> and <a haref="https://www.dbnetsoft.com/turnkeysoftware/raceresultexchange/" tagert="_blank">RaceResultExchange</a>.
 
-![dbnetsoft logo]({{ "/assets/images/logo/dbnetsoft_logo.png" | relative_url }})
+<img src="{{"/assets/images/logo/dbnetsoft_logo.png" | relative_url }}"/>
 
+<br>
+<br>
 <br>
 
 {% assign images = site.static_files
