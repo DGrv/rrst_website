@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WWF PDF Merger</title>
+    <script src="pdf-lib.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 820px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #fdf0f6;
+            color: #222;
+        }
+        h1 {
+            color: #9A0064;
+            margin-bottom: 4px;
+        }
+        .subtitle {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+        .instructions {
+            background: #fde8f3;
+            border-left: 4px solid #9A0064;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        .instructions code {
+            background: #F9C1D2;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 18px 20px;
+            margin-bottom: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+        .card label {
+            display: block;
+            font-weight: bold;
+            font-size: 1em;
+            margin-bottom: 5px;
+            color: #9A0064;
+        }
+        .card .hint {
+            font-size: 0.82em;
+            color: #777;
+            margin-bottom: 8px;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+        .file-status {
+            margin-top: 6px;
+            font-size: 0.82em;
+            color: #888;
+            min-height: 1.2em;
+        }
+        .file-status.ok  { color: #9A0064; font-weight: bold; }
+        .file-status.err { color: #c62828; font-weight: bold; }
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        button {
+            padding: 12px 30px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.15s;
+        }
+        #mergeBtn {
+            background: #9A0064;
+            color: white;
+        }
+        #mergeBtn:hover:not(:disabled) { background: #7a004e; }
+        #mergeBtn:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+        #downloadBtn {
+            background: #9A0064;
+            color: white;
+            display: none;
+        }
+        #downloadBtn:hover { background: #7a004e; }
+        .progress-container {
+            display: none;
+            margin-top: 16px;
+        }
+        progress {
+            width: 100%;
+            height: 22px;
+            border-radius: 4px;
+            appearance: none;
+            -webkit-appearance: none;
+            border: 1px solid #F9C1D2;
+            overflow: hidden;
+        }
+        progress::-webkit-progress-bar   { background: #fde8f3; }
+        progress::-webkit-progress-value { background: #9A0064; }
+        progress::-moz-progress-bar      { background: #9A0064; }
+        #progressText {
+            margin-top: 6px;
+            font-size: 0.85em;
+            color: #444;
+            font-family: monospace;
+        }
+        #statusArea {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-top: 14px;
+            font-size: 0.9em;
+            display: none;
+            line-height: 1.5;
+        }
+        #statusArea.warning {
+            background: #fff8e1;
+            border: 1px solid #f9a825;
+            color: #5d4037;
+        }
+        #statusArea.error {
+            background: #ffebee;
+            border: 1px solid #ef9a9a;
+            color: #b71c1c;
+        }
+        #statusArea.success {
+            background: #fde8f3;
+            border: 1px solid #F9C1D2;
+            color: #9A0064;
+        }
+    </style>
+</head>
+<body>
+
+<h1>WWF PDF Merger</h1>
+<p class="subtitle">Browser-based replacement for <code>WWF_create_PDF_All_v03.bat</code> — no installation required.</p>
+
+<div class="instructions">
+    <strong>How to use:</strong><br>
+    1. Select the 3 files below (order does not matter).<br>
+    2. Click <strong>Merge PDFs</strong> and wait for the progress bar to complete.<br>
+    3. Click <strong>Download Merge.pdf</strong> — verify the result matches the expected page count.<br>
+    <br>
+    <strong>Expected files:</strong>
+    <code>PDF_Klassen.csv</code> &nbsp;|&nbsp;
+    <code>All_WWF_Class_Team.pdf</code> &nbsp;|&nbsp;
+    <code>All_WWF_Parti.pdf</code>
+</div>
+
+<div class="card">
+    <label for="csvInput">PDF_Klassen.csv</label>
+    <div class="hint">Semicolon-delimited CSV — columns: Contest; Teacher; Count; Position</div>
+    <input type="file" id="csvInput" accept=".csv,text/csv,text/plain">
+    <div class="file-status" id="csvStatus">No file selected</div>
+</div>
+
+<div class="card">
+    <label for="classInput">All_WWF_Class_Team.pdf</label>
+    <div class="hint">Class certificates — 2 pages per class (expected: 64 pages for 32 classes)</div>
+    <input type="file" id="classInput" accept=".pdf,application/pdf">
+    <div class="file-status" id="classStatus">No file selected</div>
+</div>
+
+<div class="card">
+    <label for="partiInput">All_WWF_Parti.pdf</label>
+    <div class="hint">Individual participant certificates — 2 pages per participant</div>
+    <input type="file" id="partiInput" accept=".pdf,application/pdf">
+    <div class="file-status" id="partiStatus">No file selected</div>
+</div>
+
+<div id="statusArea"></div>
+
+<div class="progress-container" id="progressContainer">
+    <progress id="progressBar" value="0" max="100"></progress>
+    <div id="progressText">Preparing...</div>
+</div>
+
+<div class="actions">
+    <button id="mergeBtn" disabled>Merge PDFs</button>
+    <button id="downloadBtn">Download Merge.pdf</button>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    const { PDFDocument, PDFName, PDFNumber } = PDFLib;
+
+    let csvData       = null;  // parsed rows [{teacher, count, position}]
+    let classPdfBuf   = null;  // ArrayBuffer
+    let partiPdfBuf   = null;  // ArrayBuffer
+    let mergedBlob    = null;
+
+    // ── helpers ──────────────────────────────────────────────────────────────
+
+    async function deflate(bytes) {
+        const cs = new CompressionStream('deflate');
+        const writer = cs.writable.getWriter();
+        writer.write(bytes);
+        writer.close();
+        const chunks = [];
+        const reader = cs.readable.getReader();
+        for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+        }
+        const out = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
+        let off = 0;
+        for (const c of chunks) { out.set(c, off); off += c.length; }
+        return out;
+    }
+
+    // Byte sequences used when overriding copyBytesInto
+    const STREAM_B    = new Uint8Array([115,116,114,101,97,109]);              // 'stream'
+    const ENDSTREAM_B = new Uint8Array([101,110,100,115,116,114,101,97,109]);  // 'endstream'
+
+    async function compressPageContentStreams(doc) {
+        let done = 0, skipped = 0;
+        for (const [ref, obj] of doc.context.enumerateIndirectObjects()) {
+            // Duck-type: a raw stream has a Uint8Array contents and a dict with get/set
+            if (!(obj.contents instanceof Uint8Array)) continue;
+            if (!obj.dict || typeof obj.dict.get !== 'function') continue;
+            if (obj.contents.length === 0)           { skipped++; continue; }
+            if (obj.dict.get(PDFName.of('Filter')))  { skipped++; continue; }
+
+            const origLen = obj.contents.length;
+            const comp = await deflate(obj.contents);
+            obj.dict.set(PDFName.of('Filter'), PDFName.of('FlateDecode'));
+            obj.dict.set(PDFName.of('Length'), PDFNumber.of(comp.byteLength));
+            Object.defineProperty(obj, 'contents', { value: comp, writable: true, configurable: true });
+
+            // Override sizeInBytes + copyBytesInto so the serialiser is forced
+            // to use the compressed bytes regardless of any internal field caching.
+            const _c = comp, _d = obj.dict;
+            Object.defineProperty(obj, 'sizeInBytes', {
+                value() { return _d.sizeInBytes() + 1 + 6 + 1 + _c.length + 1 + 9; },
+                writable: true, configurable: true
+            });
+            Object.defineProperty(obj, 'copyBytesInto', {
+                value(buf, off) {
+                    const s = off;
+                    off += _d.copyBytesInto(buf, off);
+                    buf[off++] = 10;
+                    buf.set(STREAM_B, off);    off += 6;
+                    buf[off++] = 10;
+                    buf.set(_c, off);          off += _c.length;
+                    buf[off++] = 10;
+                    buf.set(ENDSTREAM_B, off); off += 9;
+                    return off - s;
+                },
+                writable: true, configurable: true
+            });
+
+            if (done === 0) console.log('[WWF diag]', {
+                origLen, compLen: comp.length,
+                ratio: (origLen / comp.length).toFixed(1) + 'x',
+                odp_ok: obj.contents === comp,
+                sizeInBytesAfter: obj.sizeInBytes()
+            });
+            done++;
+        }
+        console.log('[WWF merge] streams compressed:', done, '| skipped:', skipped);
+    }
+
+    function updateMergeBtn() {
+        document.getElementById('mergeBtn').disabled =
+            !(csvData && classPdfBuf && partiPdfBuf);
+    }
+
+    function setStatus(el, msg, cls) {
+        el.textContent = msg;
+        el.className = 'file-status ' + cls;
+    }
+
+    function showAlert(msg, type) {
+        const el = document.getElementById('statusArea');
+        el.innerHTML = msg;
+        el.className = type;
+        el.style.display = 'block';
+    }
+
+    function hideAlert() {
+        const el = document.getElementById('statusArea');
+        el.style.display = 'none';
+    }
+
+    // ── CSV parsing ───────────────────────────────────────────────────────────
+    // Format: semicolon-delimited, fields quoted with double-quotes
+    // Header: "Contest";"Teacher";"Count";"Position"
+
+    function parseCSV(text) {
+        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        if (lines.length < 2) throw new Error('CSV appears empty or has no data rows.');
+
+        const rows = [];
+        for (let i = 1; i < lines.length; i++) {
+            const fields = lines[i].split(';').map(f => f.replace(/^"|"$/g, '').trim());
+            // columns: 0=Contest, 1=Teacher, 2=Count, 3=Position
+            const count    = parseInt(fields[2], 10);
+            const position = parseInt(fields[3], 10);
+            const teacher  = fields[1];
+            if (isNaN(count) || isNaN(position)) {
+                throw new Error('Row ' + (i + 1) + ' has invalid Count or Position: ' + lines[i]);
+            }
+            rows.push({ teacher, count, position });
+        }
+
+        rows.sort((a, b) => a.position - b.position);
+        return rows;
+    }
+
+    // ── file inputs ───────────────────────────────────────────────────────────
+
+    document.getElementById('csvInput').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('csvStatus');
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            try {
+                csvData = parseCSV(ev.target.result);
+                const totalParti = csvData.reduce((s, r) => s + r.count, 0);
+                setStatus(statusEl,
+                    'Loaded: ' + csvData.length + ' classes, ' + totalParti + ' participants total',
+                    'ok');
+            } catch (err) {
+                csvData = null;
+                setStatus(statusEl, 'Parse error: ' + err.message, 'err');
+            }
+            updateMergeBtn();
+        };
+        reader.readAsText(file);
+    });
+
+    document.getElementById('classInput').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('classStatus');
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            classPdfBuf = ev.target.result;
+            setStatus(statusEl,
+                'Loaded: ' + (file.size / 1024 / 1024).toFixed(1) + ' MB — ' + file.name,
+                'ok');
+            updateMergeBtn();
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    document.getElementById('partiInput').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('partiStatus');
+        const reader = new FileReader();
+        reader.onload = function (ev) {
+            partiPdfBuf = ev.target.result;
+            setStatus(statusEl,
+                'Loaded: ' + (file.size / 1024 / 1024).toFixed(1) + ' MB — ' + file.name,
+                'ok');
+            updateMergeBtn();
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    // ── merge ─────────────────────────────────────────────────────────────────
+
+    document.getElementById('mergeBtn').addEventListener('click', async function () {
+        hideAlert();
+        document.getElementById('downloadBtn').style.display = 'none';
+        document.getElementById('mergeBtn').disabled = true;
+        mergedBlob = null;
+
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar       = document.getElementById('progressBar');
+        const progressText      = document.getElementById('progressText');
+        progressContainer.style.display = 'block';
+        progressBar.value = 0;
+        progressText.textContent = 'Loading PDFs into memory...';
+        await tick();
+
+        try {
+            // Load source documents
+            const [classDoc, partiDoc] = await Promise.all([
+                PDFDocument.load(classPdfBuf),
+                PDFDocument.load(partiPdfBuf)
+            ]);
+
+            const classPageCount = classDoc.getPageCount();
+            const partiPageCount = partiDoc.getPageCount();
+
+            // ── Validation ───────────────────────────────────────────────────
+            const warnings = [];
+            const expectedClassPages = csvData.length * 2;
+            const expectedPartiPages = csvData.reduce((s, r) => s + r.count * 2, 0);
+
+            if (classPageCount !== expectedClassPages) {
+                warnings.push(
+                    'Class PDF has <strong>' + classPageCount + '</strong> pages but CSV implies ' +
+                    expectedClassPages + ' (' + csvData.length + ' classes × 2).'
+                );
+            }
+            if (partiPageCount !== expectedPartiPages) {
+                warnings.push(
+                    'Parti PDF has <strong>' + partiPageCount + '</strong> pages but CSV implies ' +
+                    expectedPartiPages + ' (sum of counts × 2).'
+                );
+            }
+            if (warnings.length > 0) {
+                showAlert('Cannot merge — page count mismatch:<br>' + warnings.join('<br>') +
+                    '<br><em>Please check that the correct files are selected.</em>', 'error');
+                progressContainer.style.display = 'none';
+                return;
+            }
+
+            // ── Merge ────────────────────────────────────────────────────────
+            const outputDoc   = await PDFDocument.create();
+            const totalClasses = csvData.length;
+
+            let klassePage = 0;   // 0-based index into classDoc
+            let schulStart = 0;   // 0-based index into partiDoc
+
+            for (let i = 0; i < totalClasses; i++) {
+                const row   = csvData[i];
+                const pages = row.count * 2;
+
+                const klasseEnd = klassePage + 1;           // inclusive → 2 pages
+                const schulEnd  = schulStart + pages - 1;   // inclusive
+
+                // Build index arrays
+                const klasseIdx = [klassePage, klasseEnd];
+
+                const schulIdx = [];
+                for (let p = schulStart; p <= schulEnd; p++) schulIdx.push(p);
+
+                // Copy 2 class pages
+                const copiedKlasse = await outputDoc.copyPages(classDoc, klasseIdx);
+                copiedKlasse.forEach(p => outputDoc.addPage(p));
+
+                // Copy count×2 participant pages
+                const copiedSchul = await outputDoc.copyPages(partiDoc, schulIdx);
+                copiedSchul.forEach(p => outputDoc.addPage(p));
+
+                // Advance pointers
+                klassePage = klasseEnd + 1;
+                schulStart = schulEnd  + 1;
+
+                // Progress
+                const pct = Math.round(((i + 1) / totalClasses) * 100);
+                progressBar.value = pct;
+                progressText.textContent =
+                    '(' + (i + 1) + '/' + totalClasses + ') ' +
+                    row.teacher + ' — ' + row.count + ' participants... ' + pct + '%';
+                await tick();
+            }
+
+            progressText.textContent = 'Serialising (pass 1/2)...';
+            await tick();
+            const rawBytes = await outputDoc.save();
+
+            progressText.textContent = 'Reloading for compression...';
+            await tick();
+            const tempDoc = await PDFDocument.load(rawBytes);
+
+            progressText.textContent = 'Compressing content streams...';
+            await tick();
+            await compressPageContentStreams(tempDoc);
+
+            progressText.textContent = 'Serialising PDF (pass 2/2)...';
+            await tick();
+            const pdfBytes = await tempDoc.save();
+            mergedBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+
+            const totalPages = tempDoc.getPageCount();
+            progressBar.value = 100;
+            progressText.textContent =
+                'Done! ' + totalPages + ' pages — ' +
+                (mergedBlob.size / 1024 / 1024).toFixed(1) + ' MB';
+
+            showAlert(
+                'Merged successfully: <strong>' + totalClasses + ' classes</strong>, ' +
+                '<strong>' + totalPages + ' pages</strong>.',
+                'success'
+            );
+
+            // Wire up download button
+            const dlBtn = document.getElementById('downloadBtn');
+            dlBtn.style.display = 'inline-block';
+            dlBtn.onclick = function () {
+                const url = URL.createObjectURL(mergedBlob);
+                const a   = document.createElement('a');
+                a.href     = url;
+                a.download = 'Merge.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+            };
+
+        } catch (err) {
+            showAlert('Error: ' + err.message, 'error');
+            progressText.textContent = 'Merge failed — see error above.';
+            console.error(err);
+        } finally {
+            document.getElementById('mergeBtn').disabled = false;
+        }
+    });
+
+    // Yield to browser rendering / event loop
+    function tick() {
+        return new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+}());
+</script>
+</body>
+</html>
