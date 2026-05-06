@@ -155,6 +155,7 @@
 <body>
 
 <h1>WWF PDF Merger</h1>
+<p class="subtitle">Browser-based replacement for <code>WWF_create_PDF_All_v03.bat</code> — no installation required.</p>
 
 <div class="instructions">
     <strong>How to use:</strong><br>
@@ -163,27 +164,27 @@
     3. Click <strong>Download Merge.pdf</strong> — verify the result matches the expected page count.<br>
     <br>
     <strong>Expected files:</strong>
-    <code>PDF_Klassen.csv  <i>(List in RR_Monitoring)</i></code> &nbsp;|&nbsp;
-    <code>URK_Klasse_Team.pdf</code> &nbsp;|&nbsp;
-    <code>URK_Teilnehmer.pdf</code>
+    <code>PDF_Klassen.csv</code> &nbsp;|&nbsp;
+    <code>All_WWF_Class_Team.pdf</code> &nbsp;|&nbsp;
+    <code>All_WWF_Parti.pdf</code>
 </div>
 
 <div class="card">
-    <label for="csvInput">PDF_Klassen.csv <i>(List in RR_Monitoring)</i></label>
+    <label for="csvInput">PDF_Klassen.csv</label>
     <div class="hint">Semicolon-delimited CSV — columns: Contest; Teacher; Count; Position</div>
     <input type="file" id="csvInput" accept=".csv,text/csv,text/plain">
     <div class="file-status" id="csvStatus">No file selected</div>
 </div>
 
 <div class="card">
-    <label for="classInput">URK_Klasse_Team.pdf</label>
+    <label for="classInput">All_WWF_Class_Team.pdf</label>
     <div class="hint">Class certificates — 2 pages per class (expected: 64 pages for 32 classes)</div>
     <input type="file" id="classInput" accept=".pdf,application/pdf">
     <div class="file-status" id="classStatus">No file selected</div>
 </div>
 
 <div class="card">
-    <label for="partiInput">URK_Teilnehmer.pdf</label>
+    <label for="partiInput">All_WWF_Parti.pdf</label>
     <div class="hint">Individual participant certificates — 2 pages per participant</div>
     <input type="file" id="partiInput" accept=".pdf,application/pdf">
     <div class="file-status" id="partiStatus">No file selected</div>
