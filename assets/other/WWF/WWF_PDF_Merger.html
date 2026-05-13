@@ -307,16 +307,19 @@
     }
 
     // ── CSV parsing ───────────────────────────────────────────────────────────
-    // Format: semicolon-delimited, fields quoted with double-quotes
-    // Header: "Contest";"Teacher";"Count";"Position"
+    // Supports two formats (delimiter auto-detected from header):
+    //   semicolon + quoted:  "Contest";"Teacher";"Count";"Position"
+    //   comma, no quotes:    Contest,Teacher,Count,Position
 
     function parseCSV(text) {
         const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
         if (lines.length < 2) throw new Error('CSV appears empty or has no data rows.');
 
+        const sep = lines[0].includes(';') ? ';' : ',';
+
         const rows = [];
         for (let i = 1; i < lines.length; i++) {
-            const fields = lines[i].split(';').map(f => f.replace(/^"|"$/g, '').trim());
+            const fields = lines[i].split(sep).map(f => f.replace(/^"|"$/g, '').trim());
             // columns: 0=Contest, 1=Teacher, 2=Count, 3=Position
             const count    = parseInt(fields[2], 10);
             const position = parseInt(fields[3], 10);
