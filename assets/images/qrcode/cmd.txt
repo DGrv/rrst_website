@@ -1,0 +1,1 @@
+for /L %i in (1,1,10000) do ( qrencode --background=FFFFFF00 %i -d 150 -o %i.png)
