@@ -2,10 +2,23 @@
  * scan.js — adds a camera QR scan button to the RACE RESULT kiosk hosted by
  * index.html on this origin.
  *
- * Because the kiosk builds its DOM in OUR document, no same-origin restriction
- * applies: we set the kiosk's own search input and dispatch 'change', which is
- * exactly what typing does (kiosk.js: l.onchange = function(){ c(this.value) }).
- * The kiosk performs the lookup and every following step is untouched.
+ * Scope is deliberately narrow: the scanner's only job is to put the scanned
+ * text into the kiosk's own search input and fire 'change', which is exactly
+ * what typing does (kiosk.js: l.onchange = function(){ c(this.value) }).
+ * Everything after that — searching, listing, selecting a single hit — is the
+ * kiosk's own behaviour. We never read or touch the results.
+ *
+ * URL parameter (alongside event / n / k / lang, which kiosk.js reads itself):
+ *
+ *   pad=N   Zero-pad an all-digit scanned value to N characters before it is
+ *           written to the search field. Scanning 348 with pad=5 searches
+ *           "00348". Useful because RACE RESULT normalises leading zeros when
+ *           matching a bib, so a padded query returns a single participant
+ *           instead of every substring hit. Values already N or longer are
+ *           left alone, and non-numeric payloads are never padded.
+ *
+ * To have the kiosk jump straight into a single hit, enable "automatically
+ * select a single search result" (AutoSel1) in the kiosk's search step.
  *
  * Nothing here is event-specific, so one deploy serves any kiosk.
  */
@@ -16,103 +29,25 @@
   var MARK = 'data-kiosk-qr';
   var SEL = 'input[type="search"]';
 
-  /* --- configuration (URL parameters) ------------------------------------
-   * Read from this page's own query string, alongside event / n / k / lang.
-   * kiosk.js only looks at those four, so extra parameters are harmless.
-   *
-   *   pad=N       Zero-pad an all-digit scanned value to N characters before
-   *               searching. Scan "4" with pad=4 and the kiosk searches
-   *               "0004". Use when bibs are stored zero-padded.
-   *   autosel=    unique (default) select only when exactly ONE row matches
-   *               first                select the first matching row
-   *               off                  never select; always leave a manual tap
-   *   match=      strict (default) compare the bib cell literally
-   *               loose            compare numerically, so "0004" == "4"
-   *   col=N       Which result column holds the value to compare (default 0,
-   *               the bib). Result columns follow the kiosk's own config.
-   * --------------------------------------------------------------------- */
-  var Q = new URLSearchParams(location.search);
-  var PAD = parseInt(Q.get('pad'), 10) || 0;
-  var AUTOSEL = (Q.get('autosel') || 'unique').toLowerCase();
-  var MATCH = (Q.get('match') || 'strict').toLowerCase();
-  var COL = parseInt(Q.get('col'), 10) || 0;
+  var PAD = parseInt(new URLSearchParams(location.search).get('pad'), 10) || 0;
 
   function pad(v) {
     if (PAD > 0 && /^\d+$/.test(v)) while (v.length < PAD) v = '0' + v;
     return v;
   }
 
-  // Kiosk search is a substring match across BIB, LASTNAME, FIRSTNAME,
-  // CONTEST.NAME and CLUB, so scanning "4" also matches club "Mountain4life".
-  // Comparing the chosen column lets us find the row that genuinely matches.
-  function norm(v) {
-    v = String(v == null ? '' : v).trim();
-    if (MATCH === 'loose' && /^\d+$/.test(v)) return String(parseInt(v, 10));
-    return v.toLowerCase();
-  }
-
-  function input() { return document.querySelector(SEL); }
-
-  // kiosk.js renders each hit as a <tr> whose cells start at the first result
-  // column and whose onclick selects that PartID, so clicking a row is exactly
-  // what a volunteer tapping it does.
-  function rows() {
-    var all = document.querySelectorAll('tr'), out = [];
-    for (var i = 0; i < all.length; i++) if (all[i].onclick) out.push(all[i]);
-    return out;
-  }
-
-  // A row matches if the compared column equals EITHER the padded value we
-  // searched with or the raw scanned value. Both are needed: RACE RESULT
-  // normalises leading zeros when searching (v=0004 finds bib 4) but returns
-  // the bib unpadded, so searching "0004" yields a cell reading "4".
-  function matching(value, raw) {
-    var want = [norm(value)];
-    if (raw != null && norm(raw) !== want[0]) want.push(norm(raw));
-    return rows().filter(function (tr) {
-      var td = tr.querySelectorAll('td')[COL];
-      return td && want.indexOf(norm(td.textContent)) !== -1;
-    });
-  }
-
-  // Returns true if a row was selected.
-  function autoSelect(value, raw) {
-    if (AUTOSEL === 'off') return false;
-    var m = matching(value, raw);
-    if (!m.length) return false;
-    // 'unique' deliberately refuses to guess between several matches.
-    if (AUTOSEL === 'first' || m.length === 1) { m[0].click(); return true; }
-    return false;
-  }
+  /* --- handing the value to the kiosk ------------------------------------ */
 
   // Exposed for testing and for driving the page from the console.
   window.__kioskQrResult = function (code) {
-    var el = input();
+    var el = document.querySelector(SEL);
     if (!el) return;
-    var raw = String(code == null ? '' : code).trim();
-    if (!raw) return;
-    var v = pad(raw);
+    var v = pad(String(code == null ? '' : code).trim());
+    if (!v) return;
     el.focus();
     el.value = v;
     el.dispatchEvent(new Event('input', { bubbles: true }));
     el.dispatchEvent(new Event('change', { bubbles: true }));
-
-    // The lookup is async. kiosk.js renders all hits in one pass, so the first
-    // clickable row appearing means the result set is complete.
-    var tries = 0;
-    (function wait() {
-      var found = rows();
-      if (found.length) {
-        if (autoSelect(v, raw)) return;
-        var n = matching(v, raw).length;
-        toast(n > 1
-          ? n + ' rows match ' + v + ' — pick one'
-          : 'Scanned ' + v + ' — pick the right row');
-        return;
-      }
-      if (++tries < 30) setTimeout(wait, 100);
-      else toast('No result for ' + v);
-    })();
   };
 
   /* --- tiny UI ----------------------------------------------------------- */
