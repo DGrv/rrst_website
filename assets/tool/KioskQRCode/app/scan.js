@@ -16,30 +16,72 @@
   var MARK = 'data-kiosk-qr';
   var SEL = 'input[type="search"]';
 
-  /* --- value handling ---------------------------------------------------- */
+  /* --- configuration (URL parameters) ------------------------------------
+   * Read from this page's own query string, alongside event / n / k / lang.
+   * kiosk.js only looks at those four, so extra parameters are harmless.
+   *
+   *   pad=N       Zero-pad an all-digit scanned value to N characters before
+   *               searching. Scan "4" with pad=4 and the kiosk searches
+   *               "0004". Use when bibs are stored zero-padded.
+   *   autosel=    unique (default) select only when exactly ONE row matches
+   *               first                select the first matching row
+   *               off                  never select; always leave a manual tap
+   *   match=      strict (default) compare the bib cell literally
+   *               loose            compare numerically, so "0004" == "4"
+   *   col=N       Which result column holds the value to compare (default 0,
+   *               the bib). Result columns follow the kiosk's own config.
+   * --------------------------------------------------------------------- */
+  var Q = new URLSearchParams(location.search);
+  var PAD = parseInt(Q.get('pad'), 10) || 0;
+  var AUTOSEL = (Q.get('autosel') || 'unique').toLowerCase();
+  var MATCH = (Q.get('match') || 'strict').toLowerCase();
+  var COL = parseInt(Q.get('col'), 10) || 0;
+
+  function pad(v) {
+    if (PAD > 0 && /^\d+$/.test(v)) while (v.length < PAD) v = '0' + v;
+    return v;
+  }
 
   // Kiosk search is a substring match across BIB, LASTNAME, FIRSTNAME,
   // CONTEST.NAME and CLUB, so scanning "4" also matches club "Mountain4life".
-  // Comparing normalised values lets us pick the row whose BIB is an exact
-  // match, and makes zero-padded payloads ("0004") resolve to bib 4.
+  // Comparing the chosen column lets us find the row that genuinely matches.
   function norm(v) {
     v = String(v == null ? '' : v).trim();
-    return /^\d+$/.test(v) ? String(parseInt(v, 10)) : v.toLowerCase();
+    if (MATCH === 'loose' && /^\d+$/.test(v)) return String(parseInt(v, 10));
+    return v.toLowerCase();
   }
 
   function input() { return document.querySelector(SEL); }
 
-  // kiosk.js renders each hit as <tr> with td[0] = bib and tr.onclick selecting
-  // it. Clicking is therefore the same action as a volunteer tapping the row.
-  function pickExact(value) {
-    var rows = document.querySelectorAll('tr');
-    for (var i = 0; i < rows.length; i++) {
-      var td = rows[i].querySelector('td');
-      if (td && norm(td.textContent) === norm(value) && rows[i].onclick) {
-        rows[i].click();
-        return true;
-      }
-    }
+  // kiosk.js renders each hit as a <tr> whose cells start at the first result
+  // column and whose onclick selects that PartID, so clicking a row is exactly
+  // what a volunteer tapping it does.
+  function rows() {
+    var all = document.querySelectorAll('tr'), out = [];
+    for (var i = 0; i < all.length; i++) if (all[i].onclick) out.push(all[i]);
+    return out;
+  }
+
+  // A row matches if the compared column equals EITHER the padded value we
+  // searched with or the raw scanned value. Both are needed: RACE RESULT
+  // normalises leading zeros when searching (v=0004 finds bib 4) but returns
+  // the bib unpadded, so searching "0004" yields a cell reading "4".
+  function matching(value, raw) {
+    var want = [norm(value)];
+    if (raw != null && norm(raw) !== want[0]) want.push(norm(raw));
+    return rows().filter(function (tr) {
+      var td = tr.querySelectorAll('td')[COL];
+      return td && want.indexOf(norm(td.textContent)) !== -1;
+    });
+  }
+
+  // Returns true if a row was selected.
+  function autoSelect(value, raw) {
+    if (AUTOSEL === 'off') return false;
+    var m = matching(value, raw);
+    if (!m.length) return false;
+    // 'unique' deliberately refuses to guess between several matches.
+    if (AUTOSEL === 'first' || m.length === 1) { m[0].click(); return true; }
     return false;
   }
 
@@ -47,20 +89,29 @@
   window.__kioskQrResult = function (code) {
     var el = input();
     if (!el) return;
-    var v = String(code == null ? '' : code).trim();
-    if (!v) return;
+    var raw = String(code == null ? '' : code).trim();
+    if (!raw) return;
+    var v = pad(raw);
     el.focus();
     el.value = v;
     el.dispatchEvent(new Event('input', { bubbles: true }));
     el.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // The search is async; poll briefly for rows, then auto-select the exact
-    // bib. If there is no exact match the list is left for a manual tap.
+    // The lookup is async. kiosk.js renders all hits in one pass, so the first
+    // clickable row appearing means the result set is complete.
     var tries = 0;
     (function wait() {
-      if (pickExact(v)) return;
+      var found = rows();
+      if (found.length) {
+        if (autoSelect(v, raw)) return;
+        var n = matching(v, raw).length;
+        toast(n > 1
+          ? n + ' rows match ' + v + ' — pick one'
+          : 'Scanned ' + v + ' — pick the right row');
+        return;
+      }
       if (++tries < 30) setTimeout(wait, 100);
-      else toast('Scanned ' + v + ' — pick the right row');
+      else toast('No result for ' + v);
     })();
   };
 
