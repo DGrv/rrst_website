@@ -14,6 +14,7 @@ header:
 <div id="team-container" class="team-grid"></div>
 
 
+<script src='{{ "/assets/js/csv.js" | relative_url }}'></script>
 <script src='{{ "/assets/js/RRevents_rrst.js" | relative_url }}'></script>
 <script type="text/javascript" src='{{ "/assets/js/team_rrst.js" | relative_url}}'></script>
 

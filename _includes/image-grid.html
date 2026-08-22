@@ -1,0 +1,104 @@
+{% comment %}
+  image-grid.html — responsive matrix of clickable thumbnails with a lightbox.
+
+  Clicking a tile opens the full-size image in magnific-popup (already bundled
+  in the Minimal Mistakes theme) with left/right arrows, keyboard navigation
+  and an "Image N of M" counter.
+
+  Parameters:
+    folder  (required) absolute path of the image folder, with trailing slash,
+                       e.g. "/assets/images/services/bibs/"
+    alt     (optional) prefix used for the alt text / lightbox caption
+
+  Only direct children of `folder` are used — sub-folders are ignored — and
+  only files with an image extension, so stray files (scripts, notes) can live
+  alongside the images without breaking the grid.
+
+  Purely numeric filenames (1.png, 2.png, … 22.png) are sorted naturally rather
+  than alphabetically; other names fall back to alphabetical order after them.
+{% endcomment %}
+
+{%- assign folder = include.folder -%}
+{%- assign alt_prefix = include.alt | default: "Image" -%}
+{%- assign allowed_ext = ".png,.jpg,.jpeg,.gif,.webp,.svg" | split: "," -%}
+{%- assign candidates = site.static_files | where_exp: "f", "f.path contains folder" -%}
+
+{%- comment -%}
+  Build "<sortkey>::<path>" records joined by ";;" — Jekyll 3.x has no `push`
+  filter, so capture + split is the way to assemble a derived list.
+{%- endcomment -%}
+{%- capture records -%}
+  {%- for f in candidates -%}
+    {%- assign expected = folder | append: f.name -%}
+    {%- assign ext = f.extname | downcase -%}
+    {%- if f.path == expected and allowed_ext contains ext -%}
+      {%- assign n = f.basename | plus: 0 -%}
+      {%- assign roundtrip = n | append: "" -%}
+      {%- if roundtrip == f.basename -%}
+        {%- assign sortkey = n | append: "" | prepend: "00000000" | slice: -8, 8 -%}
+      {%- else -%}
+        {%- assign sortkey = f.basename | downcase | prepend: "z_" -%}
+      {%- endif -%}
+      {{ sortkey }}::{{ f.path }};;
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- assign entries = records | split: ";;" | sort -%}
+
+<div class="image-grid">
+  {%- for entry in entries -%}
+    {%- assign parts = entry | strip | split: "::" -%}
+    {%- assign path = parts[1] -%}
+    {%- assign label = path | split: "/" | last | split: "." | first -%}
+    <a href="{{ path | relative_url }}" class="gallery-popup" title="{{ alt_prefix }} {{ label }}">
+      {%- comment -%}
+        The <span> is load-bearing. The theme's main.min.js runs
+        $("a[href$='.png'],...").has("> img").addClass("image-popup") and then binds
+        every .image-popup on the page as ONE gallery. Nesting the <img> one level
+        deeper makes that `> img` selector miss, so these tiles stay out of the
+        theme's global gallery and keep their own per-grid navigation.
+      {%- endcomment -%}
+      <span><img src="{{ path | relative_url }}" alt="{{ alt_prefix }} {{ label }}" loading="lazy"></span>
+    </a>
+  {%- endfor -%}
+</div>
+
+<script>
+  // Bind each .image-grid as its own magnific-popup gallery. Using a dedicated
+  // `gallery-popup` class (not the theme's `.image-popup`) keeps this grid
+  // independent of any other lightbox group on the page.
+  (function () {
+    function initImageGrid() {
+      if (typeof jQuery === "undefined" || !jQuery.fn.magnificPopup) {
+        return setTimeout(initImageGrid, 100);
+      }
+
+      jQuery(".image-grid").each(function () {
+        if (this.dataset.mfpBound) return; // this include may appear twice on a page
+        this.dataset.mfpBound = "1";
+
+        // Belt and braces: if the theme ever does claim these links, drop its
+        // class and click handler so we don't end up double-bound.
+        jQuery(this).find("a.gallery-popup")
+          .removeClass("image-popup")
+          .off("click.magnificPopup");
+
+        jQuery(this).magnificPopup({
+          delegate: "a.gallery-popup",
+          type: "image",
+          tLoading: "Loading image #%curr%...",
+          gallery: { enabled: true, navigateByImgClick: true, preload: [0, 1] },
+          image: {
+            titleSrc: "title",
+            tError: '<a href="%url%">Image #%curr%</a> could not be loaded.'
+          },
+          mainClass: "mfp-zoom-in",
+          removalDelay: 300
+        });
+      });
+    }
+
+    initImageGrid();
+  })();
+</script>

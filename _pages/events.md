@@ -93,21 +93,23 @@ author_profile: false
     searchInput.placeholder = "Loading events...";
 
 
-    if (typeof excludedIds === "undefined" || excludedIds.length === 0) {
-        // Only load if futureEvents is undefined or empty
-        await loadExcludedEventIds(); // Always load this here is it used in other functions
+    // excludedIds and allEvents are declared with `let` at the top of
+    // RRevents_rrst.js, so they are always defined here — only their contents
+    // need checking. Load the exclusions first: the event loaders filter on them.
+    if (excludedIds.length === 0) {
+        await loadExcludedEventIds();
     } else {
         console.log("excludedIds already loaded, skipping fetch.");
     }
 
-
-
-    // Wait for all events to load
-    var actualYear = new Date().getFullYear()
-    if (typeof allEvents === "undefined" || allEvents.length === 0) {
-      await loadAllEventCards(actualYear, actualYear+1);
+    // Wait for all events to load. The live fetch covers the current and next
+    // year — the same window Download_events_json.sh archives — so newly
+    // registered events show up before the next archive refresh.
+    const actualYear = new Date().getFullYear();
+    if (allEvents.length === 0) {
+      await loadAllEventCards(actualYear, actualYear + 1);
     } else {
-        console.log("excludedIds already loaded, skipping fetch.");
+        console.log("allEvents already loaded, skipping fetch.");
     }
 
     // Activate search input

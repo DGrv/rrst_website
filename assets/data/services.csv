@@ -1,10 +1,5 @@
-name,picture,desc,link
-Uhr LED,Uhr.jpg,The best clock ever,
-LED Balken,led.jpg,We make your Event look cool !,services/led
-LED Wall,wall.png,See it big,services/wall
-Bib design,bib_collage.png,Just give us ideas we do the rest,
-Active Chip V3 Technology,ActiveChip.jpg,Great V3 plastic things !,
-Passive Matts,matte.jpg,Robust technologie,
-Passive box,ptb.jpg,Best invention ever !,
-Wlan,wlan.jpg,Your should be connected to the world,
-Professional,pro.jpg,We adapt and we act, not react,
+name,picture,desc,link,
+LED Balken,led.jpg,We make your Event look cool !,services/led,
+LED Wall,wall.png,See it big,services/wall,
+Bib Design,bib_collage.png,Just give us ideas we do the rest,services/bibs,
+Bib Collection,,Distribute your bibs efficiently and be flexible in case of changes,services/sna,

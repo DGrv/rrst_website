@@ -12,8 +12,7 @@ author_profile: false
 
 <div id="services-container" class="services-grid"></div>
 
-
-
+<script src='{{ "/assets/js/csv.js" | relative_url }}'></script>
 <script type="text/javascript" src='{{ "/assets/js/services_rrst.js" | relative_url}}'></script>
 
 <script type="text/javascript">

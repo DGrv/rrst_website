@@ -46,15 +46,9 @@ function renderServices(services) {
 async function loadServices() {
   const response = await fetch('{{ "/assets/data/services.csv" | relative_url }}');
   const text = await response.text();
-  const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
-  const headers = rows.shift().split(",").map(h => h.trim());
-  const services = rows.map(line => {
-    const cols = line.split(",");
-    let obj = {};
-    headers.forEach((h, i) => obj[h] = cols[i] ? cols[i].trim() : "");
-    return obj;
-  });
-  return services;
+  // Shared parser (assets/js/csv.js) so a description containing a comma can be
+  // quoted in services.csv without silently shifting every later column.
+  return parseCSVObjects(text);
 }
 
 

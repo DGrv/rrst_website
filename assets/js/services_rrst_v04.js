@@ -1,0 +1,60 @@
+---
+---
+
+// ---
+// ---
+// Keep this from the yml to be sure that liquid is used
+// it will transform : {{ "/assets/data/services.tsv" | relative_url }}
+
+
+const base = "{{ site.baseurl }}";    // example: "/rrst_website" or ""
+
+
+
+function renderServices(services) {
+  const container = document.getElementById("services-container");
+
+  services.forEach(member => {
+    const card = document.createElement("div");
+    card.classList.add("services-card");
+
+    // Inner content (always the same)
+    const content = `
+      <img src="${base}/assets/images/services/${member.picture}"
+           alt="${member.name}"
+           onerror="this.style.display='none';">
+      <h3>${member.name}</h3>
+      <p>${member.desc}</p>
+    `;
+
+    // Wrap with <a> only if link exists and is not empty
+    if (member.link && member.link.trim() !== "") {
+      card.innerHTML = `
+        <a href="${base}/${member.link}">
+          ${content}
+        </a>
+      `;
+    } else {
+      card.innerHTML = content;
+    }
+
+    container.appendChild(card);
+  });
+}
+
+
+async function loadServices() {
+  const response = await fetch('{{ "/assets/data/services.csv" | relative_url }}');
+  const text = await response.text();
+  const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
+  const headers = rows.shift().split(",").map(h => h.trim());
+  const services = rows.map(line => {
+    const cols = line.split(",");
+    let obj = {};
+    headers.forEach((h, i) => obj[h] = cols[i] ? cols[i].trim() : "");
+    return obj;
+  });
+  return services;
+}
+
+

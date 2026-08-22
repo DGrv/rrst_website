@@ -105,15 +105,9 @@ function showTeamPopup(member) {
 async function loadTeam() {
   const response = await fetch('{{ "/assets/data/team.csv" | relative_url }}');
   const text = await response.text();
-  const rows = text.split(/\r?\n/).filter(r => r.trim() !== "");
-  const headers = rows.shift().split(",").map(h => h.trim());
-  const team = rows.map(line => {
-    const cols = line.split(",");
-    let obj = {};
-    headers.forEach((h, i) => obj[h] = cols[i] ? cols[i].trim() : "");
-    return obj;
-  });
-  return team;
+  // parseCSVObjects (assets/js/csv.js) handles the quoted fields in team.csv —
+  // a plain split(",") breaks apart any presentation containing a comma.
+  return parseCSVObjects(text);
 }
 
 

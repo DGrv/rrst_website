@@ -26,16 +26,31 @@ async function fetchEvents({ server, user, year, limit = 500 }) {
         console.warn(`fetchEvents: server still reports HasMore for year ${year} (limit=${limit}) — some events may be missing.`);
     }
 
-    // Extract event rows from all groups, then map to named-key objects
-    const rows = data.flatMap(group => group.Events || []);
-    return rows.map(mapEvent).filter(Boolean);
+    return extractEvents(data).map(mapEvent).filter(Boolean);
+}
+
+
+// --------------------
+// Pull the event rows out of a RaceResult payload.
+// The endpoint (and therefore the saved archives in assets/data/events/) wraps
+// events in group objects: [{ Mode, Label, HasMore, Events: [...] }]. Older
+// archives were saved as a bare flat array instead, so both are accepted.
+// --------------------
+function extractEvents(data) {
+    if (!Array.isArray(data)) return [];
+
+    if (data.length && data[0] && Array.isArray(data[0].Events)) {
+        return data.flatMap(group => group.Events || []);
+    }
+
+    return data; // already a flat list of events
 }
 
 
 // --------------------
 // Normalize a raw RaceResult event into our internal shape.
 // Accepts both the current object format and the legacy positional-array
-// format (still used by the local JSON archives in assets/data/events/).
+// format used by the oldest local JSON archives.
 // --------------------
 function mapEvent(e) {
     if (Array.isArray(e)) {
@@ -261,11 +276,15 @@ async function loadAllEventCards(startYear, endYear) {
     );
 
 
-    // now render — hide next year's events by default
-    const nextYear = new Date().getFullYear() + 1;
+    // Render the current and previous year by default. The full archive going
+    // back to 2005 is ~1500 cards, which is a lot to put on first paint; the
+    // year filter buttons and the search box still cover every loaded year.
+    const thisYear = new Date().getFullYear();
     const defaultEvents = allEvents.filter(e => {
         const d = new Date(e.start);
-        return isNaN(d) || d.getFullYear() !== nextYear;
+        if (isNaN(d)) return false;
+        const y = d.getFullYear();
+        return y === thisYear || y === thisYear - 1;
     });
     renderEventsByMonth(defaultEvents, container);
 
@@ -307,31 +326,18 @@ async function loadServerEvents(startYear, endYear) {
 // --------------------
 
 async function loadCustomEvents() {
-    const folder = '../assets/data/events/';
+    const folder = `${base}/assets/data/events/`;
 
-    // List of your JSON files
+    // Built from whatever is actually in assets/data/events/ at build time, so
+    // dropping in a new events_<year>.json is enough — no list to update here.
     const files = [
-        "events_2025.json",
-        "events_2024.json",
-        "events_2023.json",
-        "events_2022.json",
-        "events_2021.json",
-        "events_2020.json",
-        "events_2019.json",
-        "events_2018.json",
-        "events_2017.json",
-        "events_2016.json",
-        "events_2015.json",
-        "events_2014.json",
-        "events_2013.json",
-        "events_2012.json",
-        "events_2011.json",
-        "events_2010.json",
-        "events_2009.json",
-        "events_2008.json",
-        "events_2007.json",
-        "events_2006.json",
-        "events_2005.json",
+        {%- assign archives = site.static_files
+             | where_exp: "f", "f.path contains '/assets/data/events/'"
+             | where_exp: "f", "f.extname == '.json'"
+             | sort: "name" | reverse -%}
+        {%- for f in archives %}
+        "{{ f.name }}",
+        {%- endfor %}
     ];
 
     const temp = [];
@@ -343,13 +349,15 @@ async function loadCustomEvents() {
 
             const data = await resp.json();
 
-            // Local archives use the legacy positional-array format
-            const data2 = data.map(mapEvent).filter(Boolean);
+            // Archives are saved verbatim from the API, so they carry the same
+            // group envelope the live endpoint returns — unwrap it the same way.
+            const rows = extractEvents(data);
+            if (!rows.length) console.warn("No events extracted from", file);
 
-            temp.push(...data2);
+            temp.push(...rows.map(mapEvent).filter(Boolean));
 
         } catch (err) {
-            console.error("Failed custom JSON:", file);
+            console.error("Failed custom JSON:", file, err);
         }
     }
 

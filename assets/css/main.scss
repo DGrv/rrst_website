@@ -126,10 +126,25 @@ a:visited {
     color: $text-color;
 }
 
+// No focus ring on mouse click (this is what put a blue box around the nav
+// links), but keep one for keyboard navigation so tabbing stays usable.
+// :focus-visible is only matched when the browser decides the focus should be
+// shown - i.e. Tab, not a click.
 a:focus,
 button:focus {
-  outline: thin dotted #6bb9d1;
-  outline: 5px auto #6bb9d1;
+  outline: none;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid $Color1;
+  outline-offset: 2px;
+}
+
+// The masthead has a red background, so a red ring would be invisible there.
+.greedy-nav a:focus-visible,
+.masthead__menu-item a:focus-visible {
+  outline-color: $BGColor2;
 }
 
 .greedy-nav a {
@@ -651,3 +666,311 @@ html {
   color: #ffffff;
 }
 
+
+// IMAGE GRID -------------------------------------------------------------------------------------
+// Shared by _includes/image-grid.html (bibs + LED design galleries)
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 30px 0;
+}
+
+.image-grid a {
+  display: block;
+  height: 180px;
+  padding: 8px;
+  background-color: $BGColor1;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.image-grid a:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+// The span exists to hide the <img> from the theme's "> img" lightbox selector;
+// see _includes/image-grid.html. It carries the centering.
+.image-grid a > span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.image-grid img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+
+  .image-grid a {
+    height: 120px;
+    padding: 5px;
+  }
+}
+
+// GALLERY COMPONENTS -----------------------------------------------------------------------------
+// Shared by the service pages (LED, bibs, wall...). Previously duplicated as an inline
+// <style> block in each page; kept here so a page only has to use the markup.
+
+// Horizontal scrollable gallery ------------------------------------------------
+
+.led-gallery-container {
+  margin: 30px 0;
+  width: 100%;
+  overflow: hidden;
+}
+
+.led-gallery {
+  display: flex;
+  gap: 15px;
+  overflow-x: auto;
+  padding: 10px 0;
+  scroll-behavior: smooth;
+}
+
+.led-gallery::-webkit-scrollbar {
+  height: 8px;
+}
+
+.led-gallery::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.led-gallery::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.led-gallery::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.led-gallery a {
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  position: relative;
+}
+
+.led-gallery a:hover {
+  transform: scale(1.05);
+}
+
+.led-gallery img {
+  height: 150px;
+  width: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+// Video thumbnails with play overlay -------------------------------------------
+
+.video-thumbnail {
+  position: relative;
+  height: 150px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.video-thumbnail video {
+  height: 150px;
+  width: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.play-button-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.play-icon {
+  font-size: 48px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 5px; // offset for the play triangle
+}
+
+.video-popup-link:hover .play-button-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.video-popup-content {
+  background: #000;
+  padding: 0;
+  max-width: 800px;
+  max-height: 80vh;
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-popup-content video {
+  width: 100%;
+  max-width: 800px;
+  max-height: 70vh;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+// .mfp-hide is not declared here on purpose — the theme's bundled magnific-popup
+// stylesheet already ships `.mfp-hide { display: none !important; }`.
+
+// Inline "More details" text popup ---------------------------------------------
+
+.led-details-link {
+  display: block;
+  margin: 10px auto;
+  padding: 4px 12px;
+  background-color: $Color1;
+  color: white !important;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  max-width: 150px;
+  text-align: center;
+}
+
+.led-details-link:hover {
+  background-color: $Color4;
+  transform: translateY(-1px);
+  color: white !important;
+}
+
+.led-details-link:visited {
+  color: white !important;
+}
+
+.led-details-popup-content {
+  background: white;
+  padding: 0;
+  max-width: 700px;
+  max-height: 85vh;
+  margin: 20px auto;
+  border-radius: 8px;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.led-details-inner {
+  padding: 30px 40px;
+  color: $Color2;
+}
+
+.led-details-inner h2 {
+  color: $Color1;
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 2px solid $Color1;
+  padding-bottom: 10px;
+}
+
+.led-details-inner h3 {
+  color: $Color1;
+  font-size: 1.1em;
+  margin-top: 30px;
+  margin-bottom: 15px;
+}
+
+.led-details-inner h4 {
+  color: $Color2;
+  font-size: 1em;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.led-details-inner p {
+  color: $Color2;
+  line-height: 1.7;
+  margin-bottom: 15px;
+  font-size: 0.8em;
+}
+
+.led-details-inner ul {
+  margin: 15px 0;
+  padding-left: 25px;
+}
+
+.led-details-inner li {
+  color: $Color2;
+  margin-bottom: 8px;
+  line-height: 1.6;
+  font-size: 0.8em;
+}
+
+@media (max-width: 768px) {
+  .led-gallery img,
+  .video-thumbnail,
+  .video-thumbnail video {
+    height: 100px;
+  }
+
+  .play-icon {
+    font-size: 32px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .led-details-popup-content {
+    max-width: 95%;
+    max-height: 90vh;
+    margin: 10px auto;
+  }
+
+  .led-details-inner {
+    padding: 20px 20px;
+  }
+
+  .led-details-inner h2 {
+    font-size: 1.1em;
+  }
+
+  .led-details-inner h3 {
+    font-size: 0.9em;
+  }
+
+  .led-details-link {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+}
