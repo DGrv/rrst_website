@@ -273,7 +273,7 @@ async function loadServerEvents(startYear, endYear) {
 // --------------------
 
 async function loadCustomEvents() {
-    const folder = '/rrst_website/assets/data/events/';
+    const folder = '/assets/data/events/';
 
     // List of your JSON files
     const files = [
