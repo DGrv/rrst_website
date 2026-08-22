@@ -11,35 +11,69 @@ const base = "{{ site.baseurl }}";    // example: "/rrst_website" or ""
 // --------------------
 // Fetch events from RaceResult API
 // --------------------
-async function fetchEvents({ server, user, year}) {
-    const params = new URLSearchParams({ user, year, });
+async function fetchEvents({ server, user, year, limit = 500 }) {
+    const params = new URLSearchParams({ user, year, limit });
     const url = `${server}/RREvents/list?${params.toString()}`;
-    
+
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch events: ${res.status}`);
 
     const data = await res.json(); // RaceResult returns array of group objects
 
+    // The API caps the number of returned events; `limit` raises that cap.
+    // If a group still reports HasMore, events are being silently dropped.
+    if (Array.isArray(data) && data.some(group => group?.HasMore)) {
+        console.warn(`fetchEvents: server still reports HasMore for year ${year} (limit=${limit}) — some events may be missing.`);
+    }
+
     // Extract event rows from all groups, then map to named-key objects
     const rows = data.flatMap(group => group.Events || []);
-    return rows
-    .filter(e => Array.isArray(e) && e.length >= 4)
-    .map(e => ({
-        id: e[0],          // event ID
-        icon: e[1],        // icon type
-        name: e[2],        // event name
-        start: e[3],       // start date
-        end: e[4],         // end date
-        city: e[5],        // city
-        countryCode: e[6]?.toLowerCase() || '', // safe country code
-        lat: e[7],         // latitude
-        lon: e[8],         // longitude
-        country: e[9],     // country full name
-        typeFull: e[10],   // type description
-        extra: e[11],      // optional additional data
-        year: e[3]?.split('-')[0] || '' // safe year extraction
-    }));
+    return rows.map(mapEvent).filter(Boolean);
+}
 
+
+// --------------------
+// Normalize a raw RaceResult event into our internal shape.
+// Accepts both the current object format and the legacy positional-array
+// format (still used by the local JSON archives in assets/data/events/).
+// --------------------
+function mapEvent(e) {
+    if (Array.isArray(e)) {
+        if (e.length < 4) return null;
+        return {
+            id: e[0],          // event ID
+            icon: e[1],        // icon type
+            name: e[2],        // event name
+            start: e[3],       // start date
+            end: e[4],         // end date
+            city: e[5],        // city
+            countryCode: e[6]?.toLowerCase() || '', // safe country code
+            lat: e[7],         // latitude
+            lon: e[8],         // longitude
+            country: e[9],     // country full name
+            typeFull: e[10],   // type description
+            extra: e[11],      // optional additional data
+            year: e[3]?.split('-')[0] || '' // safe year extraction
+        };
+    }
+
+    if (!e || typeof e !== 'object' || !e.dateFrom) return null;
+
+    return {
+        id: e.id,                    // event ID
+        icon: e.eventType,           // numeric icon type
+        name: e.name,                // event name
+        start: e.dateFrom,           // start date (YYYY-MM-DD)
+        end: e.dateTo,               // end date
+        city: e.location,            // city
+        countryCode: e.countryCode?.toLowerCase() || '', // safe country code
+        lat: e.lat,                  // latitude
+        lon: e.lng,                  // longitude
+        country: e.countryName,      // country full name
+        typeFull: e.eventTypeName,   // type description
+        extra: e.distances,          // optional additional data
+        year: e.dateFrom.split('-')[0] // safe year extraction
+    };
 }
 
 
@@ -273,7 +307,7 @@ async function loadServerEvents(startYear, endYear) {
 // --------------------
 
 async function loadCustomEvents() {
-    const folder = '/assets/data/events/';
+    const folder = '../assets/data/events/';
 
     // List of your JSON files
     const files = [
@@ -309,22 +343,8 @@ async function loadCustomEvents() {
 
             const data = await resp.json();
 
-            // Map array to objects with named keys for clarity
-            const data2 = data.map(e => ({
-                id: e[0],          // event ID
-                icon: e[1],        // icon type
-                name: e[2],        // event name
-                start: e[3],       // start date
-                end: e[4],         // end date
-                city: e[5],        // city
-                countryCode: e[6].toLowerCase(), // country code for flag
-                lat: e[7],         // latitude
-                lon: e[8],         // longitude
-                country: e[9],     // country full name
-                typeFull: e[10],   // type description
-                extra: e[11],       // optional additional data
-                year: e[3].split('-')[0]
-            }));
+            // Local archives use the legacy positional-array format
+            const data2 = data.map(mapEvent).filter(Boolean);
 
             temp.push(...data2);
 

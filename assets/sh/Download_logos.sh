@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ~/.bashrc
+source /mnt/c/Users/doria/Downloads/GitHub/dorian.gravier.github.io/files/bash/source/cecho.sh
 
 outF="/mnt/c/Users/doria/Downloads/GitHub/rrst_website/assets/images/logo/events"
 in="/mnt/c/Users/doria/Downloads/GitHub/rrst_website/assets/data/events"
