@@ -53,41 +53,28 @@ for ff in "$in"/*.json; do
         # Without it curl saves a 0-byte file and every convert fails.
         # Branch on the HTTP status rather than grepping the body: a missing
         # logo is a clean 404 with {"error":"not found"}.
-		dl="${tmp}/temp.png"
+        dl="${tmp}/temp.png"
         rm -f "$dl"
-        # Ask for the content type too: a missing logo is served as 200 with a
-        # "not found" body (the 301 -> /api/logo resets the status), so the
-        # HTTP code alone cannot tell "no logo" from "here is your logo".
-        read -r http ctype <<<"$(curl -sL -o "$dl" \
-            -w '%{http_code} %{content_type}' \
-            "https://my.raceresult.com/${eventid}/logo")"
-        ctype=${ctype%%;*}   # drop "; charset=utf-8"
+        http=$(curl -sL -o "$dl" -w "%{http_code}" "https://my.raceresult.com/${eventid}/logo")
 
-        if [ "$http" = "429" ] || grep -qi "too many request" "$dl"; then
+        if [ "$http" = "404" ]; then # no logo for this event
+            if [ -f "${out2}" ]; then
+                cecho -b "\tStill no logo - keeping placeholder"
+            else
+                convert -size 100x100 xc:none "${out2}" # create empty png
+                cecho -y "\tCreated empty png"
+            fi
+        elif [ "$http" = "429" ] || grep -qi "too many request" "$dl"; then
             cecho -r "\tRate limited (HTTP $http) - waiting"
             sleep 400
             continue # picked up again on the next run
-        fi
-
-        # Real logo = image content type *and* a body ImageMagick can decode.
-        # identify alone is not enough (it will happily read an HTML blob as a
-        # text image), content type alone is not enough (error pages lie).
-        got_image=0
-        if [ "$http" = "200" ]; then
-            case "$ctype" in
-                image/*) identify "$dl" >/dev/null 2>&1 && got_image=1 ;;
-            esac
-        fi
-
-        if [ "$got_image" = 1 ]; then
+        elif [ "$http" = "200" ]; then
             convert "$dl" -resize x100 "${out2}"
-            if [ -f "${out2}" ]; then
+            if [ -f "${out2}" ] && ! is_placeholder "${out2}"; then
                 cecho -g "\tDownloaded"
             else
                 cecho -r "\tNope - convert failed"
             fi
-        elif [ "$http" = "404" ] || [ "$http" = "200" ]; then
-            cecho -b "\tNo logo - skipped"
         else
             cecho -r "\tUnexpected HTTP $http - skipped"
         fi
