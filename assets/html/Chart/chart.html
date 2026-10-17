@@ -80,7 +80,7 @@
     border-top: 1px solid var(--card-border);
   }
   #card-inner .title + h2 { border-top: 0; padding-top: 10px; margin-top: 10px; }
-  .note { margin: 0 0 18px; max-width: 70ch; }
+  .note { margin: 0 0 18px; }
   .note > div { margin: 0 0 8px; }
   .note .demolink a { color: var(--series-1); text-decoration: none; word-break: break-all; }
   .note .demolink a:hover { text-decoration: underline; }
@@ -1019,6 +1019,14 @@
       'Hourly is what feeds the examples above - DisplayHourSlot(BibCollectedTimestamp) '
       + 'produces values like:'));
     udf.appendChild(codeBlock('2026-10-17 17:00-18:00'));
+	
+	
+    udf.appendChild(para('Hour slots:'));
+	udf.appendChild(codeBlock(
+      `DisplayHourSlot(x)
+
+date("yyyy-mm-dd hh";[x]) & ":00-" & format(val(val(date("hh";[x]))+1);"ss") & ":00"`));
+
 
     udf.appendChild(para('Half-hour slots:'));
     udf.appendChild(codeBlock(
