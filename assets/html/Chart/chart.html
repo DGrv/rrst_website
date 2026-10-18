@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
 <title>race|result chart</title>
-<!-- rrstGraphics v1.11.0 - 2026-10-18 -->
+<!-- rrstGraphics v1.12.0 - 2026-10-18 -->
 <script src="./vendor/chart.umd.js"></script>
 <style>
   /* Theme tokens. Values are stamped onto :root by applyTheme() so the chart
@@ -146,7 +146,7 @@
   /* Bump on every change that ships. Shown in the corner stamp, in the help
      card, as <meta name="version">, and as window.rrst.VERSION - so you can
      tell which copy a Presenter panel is actually running. */
-  var VERSION = '1.11.0';
+  var VERSION = '1.12.0';
   var VERSION_DATE = '2026-10-18';
 
   /* A real event the examples can be tried against when the page is opened
@@ -300,6 +300,7 @@
     refresh:    num('refresh', 300),
     max:        getUrlParameter('max') === '' ? null : num('max', null),
     values:     (getUrlParameter('values') || 'auto').toLowerCase(),
+    tooltip:    flag('tooltip', true),
     scale:      num('scale', 1)
   };
 
@@ -1132,6 +1133,39 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     return cfg.values === 'count' ? counts : pct + '  ' + counts;
   }
 
+  /* One tooltip row. The drawn labels are narrowed by values= and dropped
+     whenever a bar is too thin to hold them - common in a small iframe - so
+     the tooltip always carries the full numbers: the plotted value, the count
+     behind it and its share of the column. */
+  function tipLabel(item) {
+    var ds = item.dataset;
+    var i = item.dataIndex;
+    var multi = item.chart.data.datasets.length > 1;
+    var tot = ds.totals ? ds.totals[i] : null;
+    var raw = ds.raw ? ds.raw[i] : ds.data[i];
+    var head = ds.label ? ds.label + ': ' : '';
+
+    if (cfg.mode === 'stacked100') {
+      var out = (Math.round(ds.data[i] * 10) / 10) + '%';
+      if (tot) out += '  (' + fmtNumber(raw) + '/' + fmtNumber(tot) + ')';
+      return head + out;
+    }
+    var txt = fmtNumber(raw);
+    if (multi && tot) txt += '  (' + (Math.round(raw / tot * 1000) / 10) + '%)';
+    return head + txt;
+  }
+
+  /* Column total under the rows, only where it adds something the rows do
+     not already say. */
+  function tipFooter(items) {
+    if (!items.length) return '';
+    var it = items[0];
+    if (it.chart.data.datasets.length < 2) return '';
+    var tot = it.dataset.totals ? it.dataset.totals[it.dataIndex] : null;
+    if (tot === null || tot === undefined) return '';
+    return 'Total  ' + fmtNumber(tot);
+  }
+
   /* Numbers on the bars. Auto-enables only for a grouped chart with few
      series and bars wide enough to hold a label. */
   var valueLabels = {
@@ -1322,8 +1356,41 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
             font: { family: FONT, size: Math.round(22 * cfg.scale), weight: '600' },
             padding: { top: 2, bottom: 14 }
           },
-          /* No pointer on a Presenter screen, so no hover layer. */
-          tooltip: { enabled: false },
+          /* A Presenter screen has no pointer, but an embedded iframe is often
+             too small for the on-bar labels, so hover carries the numbers.
+             tooltip=0 restores the label-only behaviour. */
+          tooltip: {
+            enabled: cfg.tooltip,
+            mode: stacked ? 'index' : 'nearest',
+            intersect: !stacked,
+            position: 'nearest',
+            backgroundColor: theme.cardBg,
+            borderColor: theme.cardBorder,
+            borderWidth: 1,
+            titleColor: theme.textPrimary,
+            bodyColor: theme.textSecondary,
+            footerColor: theme.textMuted,
+            titleFont: { family: FONT, size: BASE_SIZE, weight: '600' },
+            bodyFont: { family: FONT, size: BASE_SIZE },
+            footerFont: { family: FONT, size: Math.max(10, BASE_SIZE - 2), weight: '400' },
+            padding: 10,
+            boxPadding: 4,
+            usePointStyle: true,
+            callbacks: {
+              /* a rounded chip, to match the legend swatch */
+              labelPointStyle: function () {
+                return { pointStyle: 'rectRounded', rotation: 0 };
+              },
+              label: tipLabel,
+              footer: tipFooter
+            },
+            /* an index tooltip would otherwise list every empty series */
+            filter: function (item) {
+              var ds = item.dataset;
+              var raw = ds.raw ? ds.raw[item.dataIndex] : ds.data[item.dataIndex];
+              return !!raw;
+            }
+          },
           rrstValueLabels: {
             mode: cfg.values,
             horizontal: cfg.horizontal,
@@ -1368,6 +1435,7 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     '  bg=           background colour, e.g. bg=%23101418 (default transparent)',
     '  refresh=300   poll seconds (5 min), 0 disables',
     '  max=<n>       fix the value-axis maximum',
+    '  tooltip=1     0 turns the hover popup off',
     '  values=auto   on | off | pct | count - numbers drawn on the bars',
     '                 stacked100 shows "28%  104/162" unless narrowed',
     '  scale=1       font size multiplier',
