@@ -1133,10 +1133,10 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     return cfg.values === 'count' ? counts : pct + '  ' + counts;
   }
 
-  /* One tooltip row. The drawn labels are narrowed by values= and dropped
-     whenever a bar is too thin to hold them - common in a small iframe - so
-     the tooltip always carries the full numbers: the plotted value, the count
-     behind it and its share of the column. */
+  /* The one tooltip row, for the segment under the pointer. The drawn labels
+     are narrowed by values= and dropped whenever a bar is too thin to hold
+     them - common in a small iframe - so the tooltip always carries the full
+     numbers: the plotted value, the count behind it, its share of the column. */
   function tipLabel(item) {
     var ds = item.dataset;
     var i = item.dataIndex;
@@ -1153,17 +1153,6 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     var txt = fmtNumber(raw);
     if (multi && tot) txt += '  (' + (Math.round(raw / tot * 1000) / 10) + '%)';
     return head + txt;
-  }
-
-  /* Column total under the rows, only where it adds something the rows do
-     not already say. */
-  function tipFooter(items) {
-    if (!items.length) return '';
-    var it = items[0];
-    if (it.chart.data.datasets.length < 2) return '';
-    var tot = it.dataset.totals ? it.dataset.totals[it.dataIndex] : null;
-    if (tot === null || tot === undefined) return '';
-    return 'Total  ' + fmtNumber(tot);
   }
 
   /* Numbers on the bars. Auto-enables only for a grouped chart with few
@@ -1361,18 +1350,17 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
              tooltip=0 restores the label-only behaviour. */
           tooltip: {
             enabled: cfg.tooltip,
-            mode: stacked ? 'index' : 'nearest',
-            intersect: !stacked,
+            /* one row: the segment under the pointer, nothing else */
+            mode: 'nearest',
+            intersect: true,
             position: 'nearest',
             backgroundColor: theme.cardBg,
             borderColor: theme.cardBorder,
             borderWidth: 1,
             titleColor: theme.textPrimary,
             bodyColor: theme.textSecondary,
-            footerColor: theme.textMuted,
             titleFont: { family: FONT, size: BASE_SIZE, weight: '600' },
             bodyFont: { family: FONT, size: BASE_SIZE },
-            footerFont: { family: FONT, size: Math.max(10, BASE_SIZE - 2), weight: '400' },
             padding: 10,
             boxPadding: 4,
             usePointStyle: true,
@@ -1381,14 +1369,7 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
               labelPointStyle: function () {
                 return { pointStyle: 'rectRounded', rotation: 0 };
               },
-              label: tipLabel,
-              footer: tipFooter
-            },
-            /* an index tooltip would otherwise list every empty series */
-            filter: function (item) {
-              var ds = item.dataset;
-              var raw = ds.raw ? ds.raw[item.dataIndex] : ds.data[item.dataIndex];
-              return !!raw;
+              label: tipLabel
             }
           },
           rrstValueLabels: {
