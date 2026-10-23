@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
 <title>race|result chart</title>
-<!-- rrstGraphics v1.12.0 - 2026-10-18 -->
+<!-- rrst_Charts v1.13.0 - 2026-10-23 -->
 <script src="./vendor/chart.umd.js"></script>
 <style>
   /* Theme tokens. Values are stamped onto :root by applyTheme() so the chart
@@ -146,8 +146,8 @@
   /* Bump on every change that ships. Shown in the corner stamp, in the help
      card, as <meta name="version">, and as window.rrst.VERSION - so you can
      tell which copy a Presenter panel is actually running. */
-  var VERSION = '1.12.0';
-  var VERSION_DATE = '2026-10-18';
+  var VERSION = '1.13.0';
+  var VERSION_DATE = '2026-10-23';
 
   /* A real event the examples can be tried against when the page is opened
      with no parameters of its own. */
@@ -287,6 +287,8 @@
     bins:       num('bins', 0),
     where:      getAllUrlParameters('where'),
     dropEmpty:  flag('dropEmpty', true),
+    cumulative: flag('cumulative', false),
+    eventDate: getUrlParameter('EventDate'),
     sort:       (getUrlParameter('sort') || 'label').toLowerCase(),
     sortBy:     getUrlParameter('sortBy'),
     top:        num('top', 0),
@@ -542,6 +544,11 @@
        the contests in Contest order rather than alphabetically. */
     var sortCol = resolveColumn(c.sortBy, fields, 'sortBy');
 
+    if (c.cumulative && c.mode === 'stacked100') {
+      throw new DataError('cumulative is not compatible with mode=stacked100 - a share of a running total is not meaningful.', fields);
+    }
+    if (c.cumulative && c.sort === 'count') c.sort = 'label';
+
     var aggKind = 'count', aggCol = null;
     if (c.agg && c.agg !== 'count') {
       var bits = c.agg.split(':');
@@ -586,6 +593,15 @@
         if (idx >= c.bins) idx = c.bins - 1;
         if (idx < 0) idx = 0;
         return binOrder[idx];
+      };
+    } else if (c.cumulative) {
+      /* Daily buckets: a timestamp like "2026-10-12 12:34:29" collapses onto
+         the same day as a plain "2026-10-12" date, so cumulative counts are
+         per-day regardless of how much precision the export carries. */
+      bucketOf = function (r) {
+        if (isBlank(r[xCol])) return EMPTY_LABEL;
+        var v = String(r[xCol]);
+        return v.length > 10 ? v.slice(0, 10) : v;
       };
     } else {
       bucketOf = function (r) { return isBlank(r[xCol]) ? EMPTY_LABEL : String(r[xCol]); };
@@ -715,6 +731,14 @@
       };
     });
 
+    /* Cumulative: running total in label (chronological) order, per series
+       independently - one contest's daily count never leaks into another's. */
+    if (c.cumulative) {
+      series.forEach(function (s) {
+        for (var ci = 1; ci < s.values.length; ci++) s.values[ci] += s.values[ci - 1];
+      });
+    }
+
     /* Keep the unscaled numbers next to the plotted ones: stacked100 plots a
        share, but "28% of what?" is the next question, so the labels can show
        the count and the column total too. */
@@ -742,6 +766,34 @@
       return l.split(c.strip).join('').trim() || l;
     });
 
+    /* A plain date x column ("2026-01-14") can be plotted on a real numeric
+       axis instead of one evenly-spaced tick per category, so gaps (days with
+       no registrations) show as gaps rather than being hidden. A date-prefixed
+       hour slot ("2026-10-17 17:00-18:00") is date-*like* - enough to thin out
+       crowded tick labels - but collapsing it to a day-offset would merge
+       every hour of the same day onto one x position, so it keeps the plain
+       categorical axis and only inherits the auto-skip. */
+    var DATE_RE = /^\d{4}-\d{2}-\d{2}/;
+    var DATE_ONLY_RE = /^\d{4}-\d{2}-\d{2}$/;
+    var isDateLike = !binOrder && labels.length > 0 &&
+      labels.every(function (l) { return DATE_RE.test(l); });
+    var isTimeAxis = isDateLike &&
+      labels.every(function (l) { return DATE_ONLY_RE.test(l); });
+
+    var dayOffsets = null;
+    if (isTimeAxis) {
+      var eventEpochDay = null;
+      if (c.eventDate && DATE_RE.test(c.eventDate)) {
+        var edMs = Date.parse(c.eventDate.slice(0, 10) + 'T00:00:00Z');
+        if (!isNaN(edMs)) eventEpochDay = Math.floor(edMs / 86400000);
+      }
+      dayOffsets = labels.map(function (l) {
+        var ms = Date.parse(l.slice(0, 10) + 'T00:00:00Z');
+        var day = Math.floor(ms / 86400000);
+        return eventEpochDay !== null ? day - eventEpochDay : day;
+      });
+    }
+
     return {
       labels: labels,
       displayLabels: displayLabels,
@@ -751,7 +803,10 @@
       xCol: xCol,
       gCol: gCol,
       aggKind: aggKind,
-      aggCol: aggCol
+      aggCol: aggCol,
+      isTimeAxis: isTimeAxis,
+      isDateLike: isDateLike,
+      dayOffsets: dayOffsets
     };
   }
 
@@ -1115,11 +1170,16 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     return Number.isInteger(v) ? String(v) : String(Math.round(v * 100) / 100);
   }
 
+  /* A time-axis dataset holds {x, y} points instead of plain numbers. */
+  function yOf(v) {
+    return (v && typeof v === 'object') ? v.y : v;
+  }
+
   /* On a stacked100 chart the plotted value is a share, so by default the
      label carries both: the percentage and the count it came from, over the
      column total. values=pct or values=count narrow it to one of the two. */
   function labelText(ds, i) {
-    var v = ds.data[i];
+    var v = yOf(ds.data[i]);
     if (cfg.mode !== 'stacked100') return fmtNumber(v);
 
     var pct = (Math.round(v * 10) / 10) + '%';
@@ -1142,11 +1202,11 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     var i = item.dataIndex;
     var multi = item.chart.data.datasets.length > 1;
     var tot = ds.totals ? ds.totals[i] : null;
-    var raw = ds.raw ? ds.raw[i] : ds.data[i];
+    var raw = ds.raw ? ds.raw[i] : yOf(ds.data[i]);
     var head = ds.label ? ds.label + ': ' : '';
 
     if (cfg.mode === 'stacked100') {
-      var out = (Math.round(ds.data[i] * 10) / 10) + '%';
+      var out = (Math.round(yOf(ds.data[i]) * 10) / 10) + '%';
       if (tot) out += '  (' + fmtNumber(raw) + '/' + fmtNumber(tot) + ')';
       return head + out;
     }
@@ -1178,7 +1238,7 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
         var meta = chart.getDatasetMeta(di);
         if (meta.hidden) continue;
         for (var i = 0; i < meta.data.length; i++) {
-          var v = sets[di].data[i];
+          var v = yOf(sets[di].data[i]);
           if (!v) continue;
           var el = meta.data[i];
           var text = labelText(sets[di], i);
@@ -1222,6 +1282,7 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     var what = agg.aggKind === 'count'
       ? 'Count'
       : agg.aggKind.charAt(0).toUpperCase() + agg.aggKind.slice(1) + ' of ' + agg.aggCol;
+    if (cfg.cumulative) what = 'Cumulative ' + what;
     var t = what + ' by ' + agg.xCol;
     if (agg.gCol) t += ', by ' + agg.gCol;
     return t;
@@ -1230,43 +1291,57 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
   function valueAxisTitle(agg) {
     if (cfg.ylab !== '') return cfg.ylab;
     if (cfg.mode === 'stacked100') return 'Share (%)';
-    if (agg.aggKind === 'count') return 'Count';
-    return agg.aggKind + ' of ' + agg.aggCol;
+    if (agg.aggKind === 'count') return cfg.cumulative ? 'Cumulative count' : 'Count';
+    return (cfg.cumulative ? 'Cumulative ' : '') + agg.aggKind + ' of ' + agg.aggCol;
   }
 
   function buildDatasets(agg) {
     return agg.series.map(function (s) {
       var c = colorFor(s);
-      return {
+      var data = agg.isTimeAxis
+        ? s.values.map(function (v, i) { return { x: agg.dayOffsets[i], y: v }; })
+        : s.values;
+      var base = {
         label: s.name === '' ? (cfg.ylab || 'Total') : s.name,
-        data: s.values,
+        data: data,
         /* not used by Chart.js - read back by the value-label plugin */
         raw: s.raw,
         totals: agg.columnTotals,
-        backgroundColor: c,
-        /* On the light surface, aqua and yellow sit below 3:1 contrast, so
-           every bar carries a hairline edge to stay visible. The dark steps
-           clear 3:1 and need none. */
-        borderColor: cfg.theme === 'light' ? theme.baseline : c,
-        borderWidth: cfg.theme === 'light' ? 1 : 0,
-        borderRadius: 4,
-        borderSkipped: 'start',
-        /* leaves a thin strip of surface between neighbouring bars */
-        barPercentage: 0.9,
-        categoryPercentage: 0.82
+        backgroundColor: c
       };
+      if (cfg.cumulative) {
+        base.borderColor = c;
+        base.fill = false;
+        base.tension = 0;
+        base.pointRadius = 2;
+        base.borderWidth = 2;
+        return base;
+      }
+      /* On the light surface, aqua and yellow sit below 3:1 contrast, so
+         every bar carries a hairline edge to stay visible. The dark steps
+         clear 3:1 and need none. */
+      base.borderColor = cfg.theme === 'light' ? theme.baseline : c;
+      base.borderWidth = cfg.theme === 'light' ? 1 : 0;
+      base.borderRadius = 4;
+      base.borderSkipped = 'start';
+      /* leaves a thin strip of surface between neighbouring bars */
+      base.barPercentage = 0.9;
+      base.categoryPercentage = 0.82;
+      return base;
     });
   }
 
   function render(agg) {
     hideCard();
-    var stacked = cfg.mode === 'stacked' || cfg.mode === 'stacked100';
+    var timeMode = agg.isTimeAxis;
+    var noHorizontal = cfg.cumulative || timeMode;
+    var stacked = !cfg.cumulative && (cfg.mode === 'stacked' || cfg.mode === 'stacked100');
     var multi = agg.series.length > 1;
     var legendPos = cfg.legend === 'auto' ? (multi ? 'top' : 'none') : cfg.legend;
     var datasets = buildDatasets(agg);
 
     if (chart) {
-      chart.data.labels = agg.displayLabels;
+      chart.data.labels = timeMode ? undefined : agg.displayLabels;
       chart.data.datasets = datasets;
       chart.options.plugins.legend.display = legendPos !== 'none';
       if (legendPos !== 'none') chart.options.plugins.legend.position = legendPos;
@@ -1275,15 +1350,36 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
       return;
     }
 
-    var catAxis = {
+    /* A date x column gets a real numeric axis instead of one evenly-spaced
+       tick per category, so gaps between registration days are proportional
+       rather than hidden; EventDate relabels it as days before/after that
+       date. Chart.js auto-skips crowded ticks on a linear scale, unlike the
+       categorical axis below which always shows every label. */
+    var catAxis = timeMode ? {
+      type: 'linear',
       stacked: stacked,
       grid: { display: false },
       border: { color: theme.baseline },
       ticks: {
         color: theme.textSecondary,
         font: { family: FONT, size: BASE_SIZE },
-        autoSkip: false,
-        maxRotation: cfg.horizontal ? 0 : 60,
+        precision: 0,
+        callback: function (value) {
+          if (cfg.eventDate) return value === 0 ? 'Event' : (value > 0 ? '+' : '') + value;
+          return new Date(value * 86400000).toISOString().slice(0, 10);
+        }
+      }
+    } : {
+      stacked: stacked,
+      grid: { display: false },
+      border: { color: theme.baseline },
+      ticks: {
+        color: theme.textSecondary,
+        font: { family: FONT, size: BASE_SIZE },
+        /* a date-prefixed hour slot is crowded with one tick per bucket - let
+           Chart.js thin those out; a plain category column keeps every label. */
+        autoSkip: agg.isDateLike,
+        maxRotation: (cfg.horizontal && !noHorizontal) ? 0 : 60,
         minRotation: 0
       }
     };
@@ -1316,16 +1412,16 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     if (cfg.mode === 'stacked100') valAxis.max = 100;
 
     chart = new Chart(canvasEl, {
-      type: 'bar',
+      type: cfg.cumulative ? 'line' : 'bar',
       plugins: [valueLabels],
-      data: { labels: agg.displayLabels, datasets: datasets },
+      data: { labels: timeMode ? undefined : agg.displayLabels, datasets: datasets },
       options: {
         animation: false,
         responsive: true,
         maintainAspectRatio: false,
-        indexAxis: cfg.horizontal ? 'y' : 'x',
+        indexAxis: (cfg.horizontal && !noHorizontal) ? 'y' : 'x',
         layout: { padding: { top: 6, right: 18, bottom: 0, left: 0 } },
-        scales: cfg.horizontal ? { y: catAxis, x: valAxis } : { x: catAxis, y: valAxis },
+        scales: (cfg.horizontal && !noHorizontal) ? { y: catAxis, x: valAxis } : { x: catAxis, y: valAxis },
         plugins: {
           legend: {
             display: legendPos !== 'none',
@@ -1373,8 +1469,10 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
             }
           },
           rrstValueLabels: {
-            mode: cfg.values,
-            horizontal: cfg.horizontal,
+            /* point-label geometry on a 30+ day line isn't useful, and the
+               plugin's math assumes bar elements (el.x/el.base). */
+            mode: cfg.cumulative ? 'off' : cfg.values,
+            horizontal: cfg.horizontal && !noHorizontal,
             stacked: stacked,
             color: theme.textSecondary,
             size: Math.max(10, BASE_SIZE - 3)
@@ -1420,9 +1518,17 @@ switch( inrange(val(date("nn";[x]));"0-14");  ":00-" & date("hh";[x]) & ":15";
     '  values=auto   on | off | pct | count - numbers drawn on the bars',
     '                 stacked100 shows "28%  104/162" unless narrowed',
     '  scale=1       font size multiplier',
+    '  cumulative=0  1 plots a running total over x, as a line',
+    '                 (not compatible with mode=stacked100)',
+    '  EventDate=    a date, e.g. 2026-10-18; relabels a date x axis as',
+    '                 days before/after that date instead of the raw dates',
     '',
     'Example',
-    '  ?event=376732&key=<KEY>&x=BibCollectedTimestamp&group=Contest'
+    '  ?event=376732&key=<KEY>&x=BibCollectedTimestamp&group=Contest',
+    '',
+    '  Cumulative registrations by contest, counting down to race day:',
+    '  ?event=376732&key=<KEY>&x=CreatedAtGA&group=Contest.Name',
+    '   &cumulative=1&EventDate=2026-10-18'
   ].join('\n');
 
   var lastSignature = null;
